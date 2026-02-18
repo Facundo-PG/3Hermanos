@@ -1,0 +1,13 @@
+import api from "../../api/axios";
+
+export const obtainOrders = () => {
+    return api.get('/orders/list');
+};
+
+export const updateOrder = (id: number, data: any) => {
+    return api.put(`/orders/update?id=${id}`, data);
+};
+
+export const deleteOrder = (id: number) => {
+    return api.delete(`/orders/delete?id=${id}`);
+};

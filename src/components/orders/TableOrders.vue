@@ -1,0 +1,202 @@
+<template>
+  <v-card elevation="4" class="pedidos-card">
+    <v-card-text class="pa-0">
+      <v-data-table
+        :headers="headers"
+        :items="pedidos"
+        :search="search"
+        :loading="loading"
+        :items-per-page="10"
+        class="elevation-0"
+        item-value="id"
+      >
+        <!-- Estado Column -->
+        <template v-slot:item.estado="{ item }">
+          <v-chip
+            :color="getEstadoColor(item.estado)"
+            size="small"
+            variant="flat"
+          >
+            {{ formatEstado(item.estado) }}
+          </v-chip>
+        </template>
+
+        <!-- Total Column -->
+        <template v-slot:item.total="{ item }">
+          <span class="font-weight-bold">${{ parseFloat(item.total).toFixed(2) }}</span>
+        </template>
+
+        <!-- Cliente Column -->
+        <template v-slot:item.user="{ item }">
+          <div class="d-flex align-center">
+            <v-icon icon="mdi-account-circle" size="small" class="mr-2" color="grey"></v-icon>
+            <span>{{ item.users?.nombre || 'Sin nombre' }}</span>
+          </div>
+        </template>
+
+        <!-- Tipo Entrega Column -->
+        <template v-slot:item.tipo_entrega="{ item }">
+          <v-chip size="small" variant="tonal" color="blue-grey">
+            {{ formatTipoEntrega(item.tipo_entrega) }}
+          </v-chip>
+        </template>
+
+        <!-- Método Pago Column -->
+        <template v-slot:item.metodo_pago="{ item }">
+          <v-chip size="small" variant="tonal" color="green">
+            {{ formatMetodoPago(item.metodo_pago) }}
+          </v-chip>
+        </template>
+
+        <!-- Fecha Column -->
+        <template v-slot:item.created_at="{ item }">
+          {{ formatDate(item.created_at) }}
+        </template>
+
+        <!-- Actions Column -->
+        <template v-slot:item.actions="{ item }">
+          <OrderActions
+            :pedido="item"
+            @edit="$emit('edit', item)"
+            @delete="$emit('delete', item)"
+          />
+        </template>
+
+        <!-- Loading -->
+        <template v-slot:loading>
+          <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+        </template>
+
+        <!-- No Data -->
+        <template v-slot:no-data>
+          <div class="text-center pa-8">
+            <v-icon icon="mdi-package-variant-closed" size="64" color="grey"></v-icon>
+            <p class="text-h6 mt-4">No hay pedidos disponibles</p>
+          </div>
+        </template>
+      </v-data-table>
+    </v-card-text>
+  </v-card>
+</template>
+
+<script setup lang="ts">
+import OrderActions from './OrderActions.vue'
+
+interface Pedido {
+  id: number
+  user_id: number
+  total: number
+  estado: string
+  tipo_entrega: string
+  notas: string
+  created_at: string
+  metodo_pago: string
+  users?: {
+    nombre: string
+    email: string
+  }
+}
+
+defineProps<{
+  pedidos: Pedido[]
+  search: string
+  loading: boolean
+}>()
+
+defineEmits<{
+  edit: [pedido: Pedido]
+  delete: [pedido: Pedido]
+}>()
+
+// Table headers
+const headers = [
+  { title: 'ID', key: 'id', sortable: true },
+  { title: 'Cliente', key: 'user', sortable: false },
+  { title: 'Total', key: 'total', sortable: true },
+  { title: 'Estado', key: 'estado', sortable: true },
+  { title: 'Tipo Entrega', key: 'tipo_entrega', sortable: true },
+  { title: 'Método Pago', key: 'metodo_pago', sortable: true },
+  { title: 'Fecha', key: 'created_at', sortable: true },
+  { title: 'Acciones', key: 'actions', sortable: false, align: 'center' }
+]
+
+const getEstadoColor = (estado: string) => {
+  const colors: Record<string, string> = {
+    pendiente: 'orange',
+    en_proceso: 'blue',
+    completado: 'green',
+    cancelado: 'red',
+    entregado: 'teal'
+  }
+  return colors[estado] || 'grey'
+}
+
+const formatEstado = (estado: string) => {
+  const estados: Record<string, string> = {
+    pendiente: 'Pendiente',
+    en_proceso: 'En proceso',
+    completado: 'Completado',
+    cancelado: 'Cancelado',
+    entregado: 'Entregado'
+  }
+  return estados[estado] || estado
+}
+
+const formatTipoEntrega = (tipo: string) => {
+  const tipos: Record<string, string> = {
+    retiro: 'Retiro',
+    envio: 'Envío',
+    local: 'Local'
+  }
+  return tipos[tipo] || tipo
+}
+
+const formatMetodoPago = (metodo: string) => {
+  const metodos: Record<string, string> = {
+    efectivo: 'Efectivo',
+    transferencia: 'Transferencia',
+    tarjeta: 'Tarjeta',
+    mercado_pago: 'Mercado Pago'
+  }
+  return metodos[metodo] || metodo
+}
+
+const formatDate = (date: string) => {
+  if (!date) return '-'
+  return new Date(date).toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+</script>
+
+<style scoped>
+.pedidos-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.v-data-table {
+  background: transparent;
+}
+
+:deep(.v-data-table-header) {
+  background-color: #263238;
+}
+
+:deep(.v-data-table-header th) {
+  color: white !important;
+  font-weight: 600;
+}
+
+:deep(.v-data-table__td) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+:deep(.v-data-table__tr:hover) {
+  background-color: rgba(239, 83, 80, 0.05) !important;
+}
+</style>
