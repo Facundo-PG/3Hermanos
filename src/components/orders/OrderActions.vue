@@ -1,6 +1,13 @@
 <template>
   <div class="d-flex gap-1">
     <v-btn
+      icon="mdi-eye"
+      size="small"
+      variant="text"
+      color="info"
+      @click="$emit('view')"
+    ></v-btn>
+    <v-btn
       icon="mdi-pencil"
       size="small"
       variant="text"
@@ -23,6 +30,7 @@ defineProps<{
 }>()
 
 defineEmits<{
+  view: []
   edit: []
   delete: []
 }>()

@@ -1,7 +1,6 @@
 <template>
   <v-app>
     <div class="login-wrapper">
-      <!-- Fondo animado con blur -->
       <div class="background-blur"></div>
       <div class="background-shapes">
         <div class="shape shape-1"></div>
@@ -11,24 +10,26 @@
 
       <v-container fluid class="fill-height">
         <v-row align="center" justify="center" class="fill-height">
-          <!-- Columna del formulario -->
           <v-col cols="12" md="5" lg="4" class="d-flex justify-center">
             <div class="login-box" :class="{ 'shake': showError }">
-              <!-- Logo circular -->
               <div class="logo-circle">
-                <v-icon icon="mdi-egg" size="50" color="white"></v-icon>
+                <v-icon icon="mdi-lock-reset" size="50" color="white"></v-icon>
               </div>
 
-              <!-- Título -->
-              <h2 class="login-title">Ingreso</h2>
+              <h2 class="login-title">Recuperar contraseña</h2>
 
-              <!-- Formulario -->
-              <LoginForm 
-                :loading="authStore.loading" 
-                @submit="handleLogin" 
+              <ForgotPasswordForm
+                :loading="loading"
+                @submit="handleForgotPassword"
               />
 
-              <!-- Error message -->
+              <v-fade-transition>
+                <div v-if="successMsg" class="success-message">
+                  <v-icon icon="mdi-check-circle" size="small" class="mr-1"></v-icon>
+                  {{ successMsg }}
+                </div>
+              </v-fade-transition>
+
               <v-fade-transition>
                 <div v-if="errorMsg" class="error-message">
                   <v-icon icon="mdi-alert-circle" size="small" class="mr-1"></v-icon>
@@ -36,22 +37,19 @@
                 </div>
               </v-fade-transition>
 
-              <!-- Links -->
               <div class="login-links">
-                <RouterLink to="/forgot-password" class="link-text">¿Olvidó su contraseña?</RouterLink>
-                <RouterLink to="/register" class="link-text">¿No tiene una cuenta?</RouterLink>
+                <RouterLink to="/login" class="link-text">Volver al login</RouterLink>
               </div>
             </div>
           </v-col>
 
-          <!-- Columna del texto grande -->
           <v-col cols="12" md="6" lg="5" class="d-none d-md-flex align-center justify-center">
             <div class="hero-text">
               <h1 class="display-text">
                 GRANJA<br>
                 <span class="text-red">3 HERMANOS</span>
               </h1>
-              <p class="subtitle-text">Sistema de Gestión</p>
+              <p class="subtitle-text">Recuperación de acceso</p>
             </div>
           </v-col>
         </v-row>
@@ -61,41 +59,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
-import LoginForm from '@/components/auth/LoginForm.vue';
+import { ref } from 'vue';
+import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm.vue';
+import { requestPasswordReset } from '@/services/auth/forgotPassword.service';
 
-const authStore = useAuthStore();
-const router = useRouter();
+const loading = ref(false);
 const errorMsg = ref('');
+const successMsg = ref('');
 const showError = ref(false);
 
-const handleLogin = async (credentials: any) => {
+const handleForgotPassword = async (email: string) => {
+  loading.value = true;
   errorMsg.value = '';
+  successMsg.value = '';
   showError.value = false;
-  
-  const result = await authStore.login(credentials);
-  
-  if (result.success) {
-    if (authStore.isAdmin) {
-      router.push('/admin/dashboard');
-    } else {
-      // Los clientes van a la página de productos para hacer pedidos
-      router.push('/products');
-    }
-  } else {
-    errorMsg.value = result.message;
+
+  try {
+    const response = await requestPasswordReset(email);
+    successMsg.value = response?.message || 'Si el correo existe, te enviamos un email para recuperar tu contraseña.';
+  } catch (error: any) {
+    errorMsg.value = error.response?.data?.message || 'No se pudo procesar la solicitud de recuperación.';
     showError.value = true;
-    setTimeout(() => showError.value = false, 500);
+    setTimeout(() => {
+      showError.value = false;
+    }, 500);
+  } finally {
+    loading.value = false;
   }
 };
-
-watch(() => authStore.loading, (newVal) => {
-  if (newVal) {
-    errorMsg.value = '';
-  }
-});
 </script>
 
 <style scoped>
@@ -107,7 +98,6 @@ watch(() => authStore.loading, (newVal) => {
   background: #0a0a0a;
 }
 
-/* Fondo con blur animado */
 .background-blur {
   position: absolute;
   top: 0;
@@ -165,12 +155,15 @@ watch(() => authStore.loading, (newVal) => {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
   }
+
   33% {
     transform: translate(50px, -50px) scale(1.1);
   }
+
   66% {
     transform: translate(-50px, 50px) scale(0.9);
   }
@@ -181,7 +174,6 @@ watch(() => authStore.loading, (newVal) => {
   z-index: 2;
 }
 
-/* Login Box */
 .login-box {
   background: rgba(20, 20, 20, 0.9);
   backdrop-filter: blur(10px);
@@ -199,7 +191,6 @@ watch(() => authStore.loading, (newVal) => {
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
 }
 
-/* Logo circular */
 .logo-circle {
   width: 100px;
   height: 100px;
@@ -214,15 +205,16 @@ watch(() => authStore.loading, (newVal) => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 10px 30px rgba(255, 23, 68, 0.4);
   }
+
   50% {
     box-shadow: 0 10px 50px rgba(255, 23, 68, 0.7);
   }
 }
 
-/* Título */
 .login-title {
   color: #ffffff;
   font-size: 32px;
@@ -232,11 +224,23 @@ watch(() => authStore.loading, (newVal) => {
   letter-spacing: 0.5px;
 }
 
-/* Error message */
 .error-message {
   background: rgba(244, 67, 54, 0.15);
   border: 1px solid rgba(244, 67, 54, 0.3);
   color: #ff5252;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-top: 16px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  animation: slideDown 0.3s ease;
+}
+
+.success-message {
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: #69f0ae;
   padding: 12px 16px;
   border-radius: 12px;
   margin-top: 16px;
@@ -251,13 +255,13 @@ watch(() => authStore.loading, (newVal) => {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Links */
 .login-links {
   display: flex;
   flex-direction: column;
@@ -277,18 +281,25 @@ watch(() => authStore.loading, (newVal) => {
   color: #ff1744;
 }
 
-/* Animación shake */
 @keyframes shake {
-  0%, 100% { transform: translateX(0) translateY(0); }
-  25% { transform: translateX(-10px) translateY(0); }
-  75% { transform: translateX(10px) translateY(0); }
+  0%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+
+  25% {
+    transform: translateX(-10px) translateY(0);
+  }
+
+  75% {
+    transform: translateX(10px) translateY(0);
+  }
 }
 
 .shake {
   animation: shake 0.5s ease-in-out;
 }
 
-/* Hero Text */
 .hero-text {
   text-align: center;
   padding: 40px;
@@ -320,12 +331,11 @@ watch(() => authStore.loading, (newVal) => {
   text-transform: uppercase;
 }
 
-/* Responsive */
 @media (max-width: 960px) {
   .login-box {
     padding: 40px 32px;
   }
-  
+
   .display-text {
     font-size: 48px;
   }
@@ -335,16 +345,16 @@ watch(() => authStore.loading, (newVal) => {
   .login-box {
     padding: 32px 24px;
   }
-  
+
   .login-title {
     font-size: 28px;
   }
-  
+
   .logo-circle {
     width: 80px;
     height: 80px;
   }
-  
+
   .logo-circle :deep(.v-icon) {
     font-size: 40px !important;
   }

@@ -12,13 +12,18 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppFooter: typeof import('./components/AppFooter.vue')['default']
+    ForgotPasswordForm: typeof import('./components/auth/ForgotPasswordForm.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     LoginForm: typeof import('./components/auth/LoginForm.vue')['default']
     OrderActions: typeof import('./components/orders/OrderActions.vue')['default']
+    OrderCreateDialog: typeof import('./components/orders/OrderCreateDialog.vue')['default']
     OrderDeleteDialog: typeof import('./components/orders/OrderDeleteDialog.vue')['default']
     OrderEditDialog: typeof import('./components/orders/OrderEditDialog.vue')['default']
+    OrderViewDialog: typeof import('./components/orders/OrderViewDialog.vue')['default']
     ProductsForm: typeof import('./components/products/ProductsForm.vue')['default']
     ProductsTable: typeof import('./components/products/ProductsTable.vue')['default']
+    RegisterForm: typeof import('./components/auth/RegisterForm.vue')['default']
+    ResetPasswordForm: typeof import('./components/auth/ResetPasswordForm.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TableOrders: typeof import('./components/orders/TableOrders.vue')['default']

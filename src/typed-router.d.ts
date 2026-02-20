@@ -22,8 +22,16 @@ declare module 'vue-router/auto-routes' {
     '/admin/dashboard': RouteRecordInfo<'/admin/dashboard', '/admin/dashboard', Record<never, never>, Record<never, never>>,
     '/admin/pedidos': RouteRecordInfo<'/admin/pedidos', '/admin/pedidos', Record<never, never>, Record<never, never>>,
     '/admin/product': RouteRecordInfo<'/admin/product', '/admin/product', Record<never, never>, Record<never, never>>,
+    '/auth/confirm-account': RouteRecordInfo<'/auth/confirm-account', '/auth/confirm-account', Record<never, never>, Record<never, never>>,
+    '/auth/confirm-email': RouteRecordInfo<'/auth/confirm-email', '/auth/confirm-email', Record<never, never>, Record<never, never>>,
+    '/confirm-account': RouteRecordInfo<'/confirm-account', '/confirm-account', Record<never, never>, Record<never, never>>,
+    '/confirm-email': RouteRecordInfo<'/confirm-email', '/confirm-email', Record<never, never>, Record<never, never>>,
+    '/forgot-password': RouteRecordInfo<'/forgot-password', '/forgot-password', Record<never, never>, Record<never, never>>,
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
     '/products': RouteRecordInfo<'/products', '/products', Record<never, never>, Record<never, never>>,
+    '/register': RouteRecordInfo<'/register', '/register', Record<never, never>, Record<never, never>>,
+    '/reset-password': RouteRecordInfo<'/reset-password', '/reset-password', Record<never, never>, Record<never, never>>,
+    '/verify-email': RouteRecordInfo<'/verify-email', '/verify-email', Record<never, never>, Record<never, never>>,
   }
 
   /**
@@ -53,12 +61,44 @@ declare module 'vue-router/auto-routes' {
       routes: '/admin/product'
       views: never
     }
+    'src/pages/auth/confirm-account.vue': {
+      routes: '/auth/confirm-account'
+      views: never
+    }
+    'src/pages/auth/confirm-email.vue': {
+      routes: '/auth/confirm-email'
+      views: never
+    }
+    'src/pages/confirm-account.vue': {
+      routes: '/confirm-account'
+      views: never
+    }
+    'src/pages/confirm-email.vue': {
+      routes: '/confirm-email'
+      views: never
+    }
+    'src/pages/forgot-password.vue': {
+      routes: '/forgot-password'
+      views: never
+    }
     'src/pages/login.vue': {
       routes: '/login'
       views: never
     }
     'src/pages/products.vue': {
       routes: '/products'
+      views: never
+    }
+    'src/pages/register.vue': {
+      routes: '/register'
+      views: never
+    }
+    'src/pages/reset-password.vue': {
+      routes: '/reset-password'
+      views: never
+    }
+    'src/pages/verify-email.vue': {
+      routes: '/verify-email'
       views: never
     }
   }

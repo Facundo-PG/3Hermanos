@@ -23,7 +23,7 @@
 
         <!-- Total Column -->
         <template v-slot:item.total="{ item }">
-          <span class="font-weight-bold">${{ parseFloat(item.total).toFixed(2) }}</span>
+          <span class="font-weight-bold">${{ Number(item.total).toFixed(2) }}</span>
         </template>
 
         <!-- Cliente Column -->
@@ -32,6 +32,16 @@
             <v-icon icon="mdi-account-circle" size="small" class="mr-2" color="grey"></v-icon>
             <span>{{ item.users?.nombre || 'Sin nombre' }}</span>
           </div>
+        </template>
+
+        <!-- Direccion Column -->
+        <template v-slot:item.direccion="{ item }">
+          <span>{{ item.users?.direccion || item.direccion || '-' }}</span>
+        </template>
+
+        <!-- Telefono Column -->
+        <template v-slot:item.telefono="{ item }">
+          <span>{{ item.users?.telefono || item.telefono || '-' }}</span>
         </template>
 
         <!-- Tipo Entrega Column -->
@@ -57,6 +67,7 @@
         <template v-slot:item.actions="{ item }">
           <OrderActions
             :pedido="item"
+            @view="$emit('view', item)"
             @edit="$emit('edit', item)"
             @delete="$emit('delete', item)"
           />
@@ -89,11 +100,15 @@ interface Pedido {
   estado: string
   tipo_entrega: string
   notas: string
+  direccion?: string
+  telefono?: string
   created_at: string
   metodo_pago: string
   users?: {
     nombre: string
     email: string
+    direccion?: string
+    telefono?: string
   }
 }
 
@@ -104,6 +119,7 @@ defineProps<{
 }>()
 
 defineEmits<{
+  view: [pedido: Pedido]
   edit: [pedido: Pedido]
   delete: [pedido: Pedido]
 }>()
@@ -112,12 +128,14 @@ defineEmits<{
 const headers = [
   { title: 'ID', key: 'id', sortable: true },
   { title: 'Cliente', key: 'user', sortable: false },
+  { title: 'Direccion', key: 'direccion', sortable: false },
+  { title: 'Telefono', key: 'telefono', sortable: false },
   { title: 'Total', key: 'total', sortable: true },
   { title: 'Estado', key: 'estado', sortable: true },
   { title: 'Tipo Entrega', key: 'tipo_entrega', sortable: true },
   { title: 'Método Pago', key: 'metodo_pago', sortable: true },
   { title: 'Fecha', key: 'created_at', sortable: true },
-  { title: 'Acciones', key: 'actions', sortable: false, align: 'center' }
+  { title: 'Acciones', key: 'actions', sortable: false, align: 'center' as const }
 ]
 
 const getEstadoColor = (estado: string) => {

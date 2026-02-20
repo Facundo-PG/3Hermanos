@@ -36,11 +36,19 @@ meta:
             bg-color="white"
           ></v-text-field>
         </v-col>
-        <v-col cols="12" md="10" class="d-flex align-center justify-end">
+        <v-col cols="12" md="10" class="d-flex align-center justify-end gap-2">
           <v-chip class="mr-2" color="primary" variant="text">
             <v-icon start icon="mdi-package"></v-icon>
             Total: {{ pedidos.length }} pedidos
           </v-chip>
+          <v-btn
+            prepend-icon="mdi-plus"
+            color="red-darken-2"
+            variant="elevated"
+            @click="createDialog = true"
+          >
+            Agregar Pedido
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -51,6 +59,7 @@ meta:
             :pedidos="pedidos"
             :search="search"
             :loading="loading"
+            @view="viewPedido"
             @edit="editPedido"
             @delete="confirmDelete"
           />
@@ -65,6 +74,19 @@ meta:
       :saving="saving"
       @close="closeEdit"
       @save="savePedido"
+    />
+
+    <OrderViewDialog
+      v-model="viewDialog"
+      :pedido="viewedPedido"
+      @close="closeView"
+    />
+
+    <OrderCreateDialog
+      v-model="createDialog"
+      :saving="saving"
+      @close="closeCreate"
+      @save="savePedidoCreate"
     />
 
     <!-- Delete Confirmation Dialog -->
@@ -89,11 +111,13 @@ meta:
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { obtainOrders, updateOrder, deleteOrder } from '@/services/admin/obtainOrders.service'
+import { obtainOrders, updateOrder, deleteOrder, createOrder } from '@/services/admin/obtainOrders.service'
 import { sendEmailNotification } from '@/services/admin/sendWhatsapp.service'
 import TableOrders from '@/components/orders/TableOrders.vue'
 import OrderEditDialog from '@/components/orders/OrderEditDialog.vue'
 import OrderDeleteDialog from '@/components/orders/OrderDeleteDialog.vue'
+import OrderViewDialog from '@/components/orders/OrderViewDialog.vue'
+import OrderCreateDialog from '@/components/orders/OrderCreateDialog.vue'
 
 interface Pedido {
   id: number
@@ -116,8 +140,11 @@ const pedidos = ref<Pedido[]>([])
 const search = ref('')
 const loading = ref(false)
 const editDialog = ref(false)
+const viewDialog = ref(false)
 const deleteDialog = ref(false)
+const createDialog = ref(false)
 const editedPedido = ref<Pedido | null>(null)
+const viewedPedido = ref<Pedido | null>(null)
 const pedidoToDelete = ref<Pedido | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
@@ -146,9 +173,45 @@ const editPedido = (pedido: Pedido) => {
   editDialog.value = true
 }
 
+const viewPedido = (pedido: Pedido) => {
+  viewedPedido.value = { ...pedido }
+  viewDialog.value = true
+}
+
 const closeEdit = () => {
   editDialog.value = false
   editedPedido.value = null
+}
+
+const closeView = () => {
+  viewDialog.value = false
+  viewedPedido.value = null
+}
+
+const closeCreate = () => {
+  createDialog.value = false
+}
+
+const savePedidoCreate = async (data: any) => {
+  saving.value = true
+  try {
+    // Enviar todos los items en una sola llamada
+    await createOrder(data)
+    showSnackbar('Pedido creado correctamente', 'success')
+    await fetchPedidos()
+    createDialog.value = false
+  } catch (error: any) {
+    console.error('Error al crear pedido:', error)
+    const mensajeBack = error?.response?.data?.data?.mensajeError || ''
+    const stockMatch = mensajeBack.match(/Stock insuficiente para (.+?)\./)
+    if (stockMatch) {
+      showSnackbar(`El pedido no puede ser creado ya que nos quedamos sin stock de ${stockMatch[1]}`, 'error')
+    } else {
+      showSnackbar('Error al crear el pedido', 'error')
+    }
+  } finally {
+    saving.value = false
+  }
 }
 
 const savePedido = async () => {

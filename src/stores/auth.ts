@@ -10,7 +10,7 @@ interface User {
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        user: null as User | null,
+        user: JSON.parse(localStorage.getItem('user') || 'null') as User | null,
         token: localStorage.getItem('token') || null,
         loading: false,
     }),
@@ -23,9 +23,18 @@ export const useAuthStore = defineStore('auth', {
             this.loading = true;
             try {
                 const { data } = await api.post('/auth/login', credentials);
+
+                if (data?.user && (data.user.verificado === false || data.user.verified === false)) {
+                    return {
+                        success: false,
+                        message: 'Tu cuenta aún no está verificada. Revisá tu correo y confirmá el link para ingresar.',
+                    };
+                }
+
                 this.token = data.access_token;
                 this.user = data.user;
                 localStorage.setItem('token', data.access_token);
+                localStorage.setItem('user', JSON.stringify(data.user));
                 return { success: true, message: 'Login exitoso' };
             } catch (error: any) {
                 console.error('Error en login', error);
@@ -39,6 +48,7 @@ export const useAuthStore = defineStore('auth', {
             this.user = null;
             this.token = null;
             localStorage.removeItem('token');
+            localStorage.removeItem('user');
         }
     },
 });
