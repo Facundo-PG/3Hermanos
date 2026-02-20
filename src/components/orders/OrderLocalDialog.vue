@@ -1,23 +1,12 @@
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="700px">
+  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="550px">
     <v-card>
-      <v-card-title class="bg-red-darken-2 text-white">
-        <v-icon icon="mdi-plus" class="mr-2"></v-icon>
-        Agregar Pedido
+      <v-card-title class="bg-orange-darken-2 text-white">
+        <v-icon icon="mdi-store" class="mr-2"></v-icon>
+        Pedido Local
       </v-card-title>
       <v-card-text class="pt-6">
         <v-form ref="formRef">
-          <!-- Tipo de Entrega -->
-          <v-select
-            v-model="formData.tipo_entrega"
-            label="Tipo de Entrega"
-            :items="['Retiro', 'Envio']"
-            :rules="[rules.required]"
-            variant="outlined"
-            density="comfortable"
-            class="mb-4"
-          ></v-select>
-
           <!-- Método de Pago -->
           <v-select
             v-model="formData.metodo_pago"
@@ -30,24 +19,20 @@
           ></v-select>
 
           <!-- Notas -->
-          <v-textarea
+          <v-text-field
             v-model="formData.notas"
-            label="Notas"
+            label="Notas (opcional)"
             variant="outlined"
             density="comfortable"
-            rows="2"
             class="mb-4"
-          ></v-textarea>
+          ></v-text-field>
 
           <!-- Productos -->
           <div class="mb-4">
             <div class="font-weight-bold mb-2">Productos</div>
-            <div v-if="formData.items.length === 0" class="text-grey-darken-1 mb-3">
-              No hay productos agregados
-            </div>
             <div v-for="(item, index) in formData.items" :key="index" class="item-card mb-3">
               <v-row class="align-center">
-                <v-col cols="8">
+                <v-col cols="7">
                   <v-autocomplete
                     v-model="item.product_id"
                     label="Producto"
@@ -60,7 +45,7 @@
                     no-data-text="Sin productos disponibles"
                   ></v-autocomplete>
                 </v-col>
-                <v-col cols="3">
+                <v-col cols="4">
                   <v-text-field
                     v-model.number="item.cantidad"
                     label="Cantidad"
@@ -73,6 +58,7 @@
                 </v-col>
                 <v-col cols="1" class="d-flex justify-center">
                   <v-btn
+                    v-if="formData.items.length > 1"
                     icon="mdi-delete"
                     size="small"
                     variant="text"
@@ -85,10 +71,10 @@
             <v-btn
               prepend-icon="mdi-plus"
               variant="outlined"
-              color="primary"
+              color="orange-darken-2"
               block
               @click="addItem"
-              class="mb-4"
+              size="small"
             >
               Agregar Producto
             </v-btn>
@@ -100,11 +86,11 @@
         <v-btn variant="text" @click="closeDialog">Cancelar</v-btn>
         <v-btn
           variant="elevated"
-          color="red-darken-2"
+          color="orange-darken-2"
           :loading="saving"
           @click="handleSave"
         >
-          Crear Pedido
+          Registrar Venta
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -116,7 +102,7 @@ import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import type { VForm } from 'vuetify/components'
 
-const props = defineProps<{
+defineProps<{
   modelValue: boolean
   saving?: boolean
 }>()
@@ -131,35 +117,24 @@ const authStore = useAuthStore()
 const formRef = ref<InstanceType<typeof VForm> | null>(null)
 
 const rules = {
-  required: (v: any) => !!v || v === 0 ? true : 'Este campo es obligatorio',
+  required: (v: any) => (!!v || v === 0) ? true : 'Este campo es obligatorio',
   minCantidad: (v: number) => (v && v > 0) ? true : 'La cantidad debe ser mayor a 0',
 }
 
 const formData = ref({
-  tipo_entrega: 'Envio',
-  metodo_pago: 'efectivo',
+  metodo_pago: 'Efectivo',
   notas: '',
-  items: [
-    {
-      product_id: null,
-      cantidad: 1
-    }
-  ]
+  items: [{ product_id: null as number | null, cantidad: 1 }]
 })
 
 const productsList = ref<Array<{ id: number; nombre: string }>>([])
 
 const addItem = () => {
-  formData.value.items.push({
-    product_id: null,
-    cantidad: 1
-  })
+  formData.value.items.push({ product_id: null, cantidad: 1 })
 }
 
 const removeItem = (index: number) => {
-  if (formData.value.items.length > 1) {
-    formData.value.items.splice(index, 1)
-  }
+  formData.value.items.splice(index, 1)
 }
 
 const handleSave = async () => {
@@ -168,7 +143,7 @@ const handleSave = async () => {
 
   const data = {
     user_id: Number(authStore.user?.id) || 0,
-    tipo_entrega: formData.value.tipo_entrega,
+    tipo_entrega: 'Local',
     metodo_pago: formData.value.metodo_pago,
     notas: formData.value.notas || '',
     items: formData.value.items.map((item) => ({
@@ -177,8 +152,6 @@ const handleSave = async () => {
     }))
   }
 
-  console.log('Datos a enviar:', JSON.stringify(data, null, 2))
-  console.log('User del store:', authStore.user)
   emit('save', data)
 }
 
@@ -187,12 +160,20 @@ const closeDialog = () => {
   emit('update:modelValue', false)
 }
 
+const resetForm = () => {
+  formData.value = {
+    metodo_pago: 'Efectivo',
+    notas: '',
+    items: [{ product_id: null, cantidad: 1 }]
+  }
+  formRef.value?.resetValidation()
+}
+
 const fetchProducts = async () => {
   try {
     const api = (await import('@/api/axios')).default
     const response = await api.get('/products/list')
     const d = response.data
-    // Maneja estructura: { data: { data: [...] } } o { data: [...] } o [...]
     const arr = Array.isArray(d?.data?.data)
       ? d.data.data
       : Array.isArray(d?.data)
@@ -218,5 +199,4 @@ onMounted(() => {
   border-radius: 4px;
   padding: 12px;
 }
-
 </style>

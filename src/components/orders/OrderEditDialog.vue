@@ -97,6 +97,7 @@ const formRef = ref()
 
 const estadosOptions = [
   { title: 'Pendiente', value: 'pendiente' },
+  { title: 'Pagado', value: 'pagado' },
   { title: 'En proceso', value: 'en_proceso' },
   { title: 'Completado', value: 'completado' },
   { title: 'Cancelado', value: 'cancelado' },
@@ -111,9 +112,7 @@ const tipoEntregaOptions = [
 
 const metodoPagoOptions = [
   { title: 'Efectivo', value: 'efectivo' },
-  { title: 'Transferencia', value: 'transferencia' },
-  { title: 'Tarjeta', value: 'tarjeta' },
-  { title: 'Mercado Pago', value: 'mercado_pago' }
+  { title: 'Transferencia', value: 'transferencia' }
 ]
 
 const handleSave = async () => {

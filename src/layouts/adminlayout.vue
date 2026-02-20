@@ -91,11 +91,6 @@ const menuItems = ref([
     route: '/admin/pedidos'
   },
   {
-    title: 'Productos',
-    icon: 'mdi-egg',
-    route: '/admin/productos'
-  },
-  {
     title: 'Stock / Inventario',
     icon: 'mdi-warehouse',
     route: '/admin/stock'

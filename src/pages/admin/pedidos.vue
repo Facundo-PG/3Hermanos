@@ -23,7 +23,7 @@ meta:
 
       <!-- Search Bar -->
       <v-row class="mb-4">
-        <v-col cols="12" md="2">
+        <v-col cols="12" md="4">
           <v-text-field
             v-model="search"
             prepend-inner-icon="mdi-magnify"
@@ -36,33 +36,77 @@ meta:
             bg-color="white"
           ></v-text-field>
         </v-col>
-        <v-col cols="12" md="10" class="d-flex align-center justify-end gap-2">
-          <v-chip class="mr-2" color="primary" variant="text">
-            <v-icon start icon="mdi-package"></v-icon>
-            Total: {{ pedidos.length }} pedidos
-          </v-chip>
-          <v-btn
-            prepend-icon="mdi-plus"
-            color="red-darken-2"
-            variant="elevated"
-            @click="createDialog = true"
-          >
-            Agregar Pedido
-          </v-btn>
+      </v-row>
+
+      <!-- Pedidos Via Web -->
+      <v-row class="mb-6">
+        <v-col cols="12">
+          <v-card elevation="2" rounded="lg">
+            <v-card-title class="bg-red-darken-2 text-white d-flex align-center">
+              <v-icon icon="mdi-web" class="mr-2"></v-icon>
+              Pedidos Via Web
+              <v-spacer></v-spacer>
+              <v-chip color="white" variant="flat" size="small" class="text-red-darken-2 font-weight-bold">
+                {{ pedidosWeb.length }} pedidos
+              </v-chip>
+              <v-btn
+                class="ml-3"
+                prepend-icon="mdi-plus"
+                color="white"
+                variant="outlined"
+                size="small"
+                @click="createDialog = true"
+              >
+                Agregar Pedido
+              </v-btn>
+            </v-card-title>
+            <v-card-text class="pa-0">
+              <TableOrders
+                :pedidos="pedidosWeb"
+                :search="search"
+                :loading="loading"
+                @view="viewPedido"
+                @edit="editPedido"
+                @delete="confirmDelete"
+              />
+            </v-card-text>
+          </v-card>
         </v-col>
       </v-row>
 
-      <!-- Tabla de Pedidos -->
+      <!-- Pedidos Locales -->
       <v-row>
         <v-col cols="12">
-          <TableOrders
-            :pedidos="pedidos"
-            :search="search"
-            :loading="loading"
-            @view="viewPedido"
-            @edit="editPedido"
-            @delete="confirmDelete"
-          />
+          <v-card elevation="2" rounded="lg">
+            <v-card-title class="bg-orange-darken-2 text-white d-flex align-center">
+              <v-icon icon="mdi-store" class="mr-2"></v-icon>
+              Pedidos del Local
+              <v-spacer></v-spacer>
+              <v-chip color="white" variant="flat" size="small" class="text-orange-darken-2 font-weight-bold">
+                {{ pedidosLocal.length }} pedidos
+              </v-chip>
+              <v-btn
+                class="ml-3"
+                prepend-icon="mdi-plus"
+                color="white"
+                variant="outlined"
+                size="small"
+                @click="localDialog = true"
+              >
+                Agregar Pedido
+              </v-btn>
+            </v-card-title>
+            <v-card-text class="pa-0">
+              <TableOrders
+                :pedidos="pedidosLocal"
+                :search="search"
+                :loading="loading"
+                @view="viewPedido"
+                @edit="editPedido"
+                @delete="confirmDelete"
+              />
+            </v-card-text>
+          </v-card>
         </v-col>
       </v-row>
     </v-container>
@@ -89,6 +133,13 @@ meta:
       @save="savePedidoCreate"
     />
 
+    <OrderLocalDialog
+      v-model="localDialog"
+      :saving="saving"
+      @close="localDialog = false"
+      @save="savePedidoLocal"
+    />
+
     <!-- Delete Confirmation Dialog -->
     <OrderDeleteDialog
       v-model="deleteDialog"
@@ -110,7 +161,7 @@ meta:
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { obtainOrders, updateOrder, deleteOrder, createOrder } from '@/services/admin/obtainOrders.service'
 import { sendEmailNotification } from '@/services/admin/sendWhatsapp.service'
 import TableOrders from '@/components/orders/TableOrders.vue'
@@ -118,6 +169,7 @@ import OrderEditDialog from '@/components/orders/OrderEditDialog.vue'
 import OrderDeleteDialog from '@/components/orders/OrderDeleteDialog.vue'
 import OrderViewDialog from '@/components/orders/OrderViewDialog.vue'
 import OrderCreateDialog from '@/components/orders/OrderCreateDialog.vue'
+import OrderLocalDialog from '@/components/orders/OrderLocalDialog.vue'
 
 interface Pedido {
   id: number
@@ -143,11 +195,20 @@ const editDialog = ref(false)
 const viewDialog = ref(false)
 const deleteDialog = ref(false)
 const createDialog = ref(false)
+const localDialog = ref(false)
 const editedPedido = ref<Pedido | null>(null)
 const viewedPedido = ref<Pedido | null>(null)
 const pedidoToDelete = ref<Pedido | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
+
+// Computed: separar pedidos web y local
+const pedidosWeb = computed(() =>
+  pedidos.value.filter(p => p.tipo_entrega?.toLowerCase() !== 'local')
+)
+const pedidosLocal = computed(() =>
+  pedidos.value.filter(p => p.tipo_entrega?.toLowerCase() === 'local')
+)
 
 // Snackbar
 const snackbar = ref(false)
@@ -190,6 +251,27 @@ const closeView = () => {
 
 const closeCreate = () => {
   createDialog.value = false
+}
+
+const savePedidoLocal = async (data: any) => {
+  saving.value = true
+  try {
+    await createOrder(data)
+    showSnackbar('Venta local registrada correctamente', 'success')
+    await fetchPedidos()
+    localDialog.value = false
+  } catch (error: any) {
+    console.error('Error al crear pedido local:', error)
+    const mensajeBack = error?.response?.data?.data?.mensajeError || ''
+    const stockMatch = mensajeBack.match(/Stock insuficiente para (.+?)\./) 
+    if (stockMatch) {
+      showSnackbar(`Sin stock de ${stockMatch[1]}`, 'error')
+    } else {
+      showSnackbar('Error al registrar la venta', 'error')
+    }
+  } finally {
+    saving.value = false
+  }
 }
 
 const savePedidoCreate = async (data: any) => {

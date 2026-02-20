@@ -60,11 +60,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { confirmEmail } from '@/services/auth/confirmEmail.service';
 
 const router = useRouter();
 const route = useRoute();
-const token = computed(() => String(route.query.token || ''));
+const status = computed(() => String(route.query.status || ''));
 const redirectCountdown = ref(6);
 const loading = ref(true);
 const errorMsg = ref('');
@@ -93,20 +92,18 @@ const startCountdown = () => {
   }, 1000);
 };
 
-onMounted(async () => {
-  if (!token.value) {
-    loading.value = false;
-    errorMsg.value = 'El enlace no contiene un token valido.';
-    return;
-  }
-
-  try {
-    await confirmEmail(token.value);
+onMounted(() => {
+  // El backend ya confirmó la cuenta al hacer GET /auth/confirm-email
+  // y nos redirigió con ?status=success o ?status=error
+  if (status.value === 'success') {
     loading.value = false;
     startCountdown();
-  } catch (error: any) {
+  } else if (status.value === 'error') {
     loading.value = false;
-    errorMsg.value = error.response?.data?.message || 'No se pudo confirmar la cuenta.';
+    errorMsg.value = 'No se pudo confirmar la cuenta. El enlace puede haber expirado.';
+  } else {
+    loading.value = false;
+    errorMsg.value = 'Enlace de confirmación inválido.';
   }
 });
 

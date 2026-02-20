@@ -58,6 +58,23 @@
           </v-chip>
         </template>
 
+        <!-- Comprobante Column -->
+        <template v-slot:item.comprobante_url="{ item }">
+          <v-btn
+            v-if="item.comprobante_url"
+            :href="getComprobanteUrl(item.comprobante_url)"
+            target="_blank"
+            size="small"
+            variant="tonal"
+            color="blue-darken-2"
+            prepend-icon="mdi-download"
+            class="text-none"
+          >
+            Ver
+          </v-btn>
+          <span v-else class="text-medium-emphasis">—</span>
+        </template>
+
         <!-- Fecha Column -->
         <template v-slot:item.created_at="{ item }">
           {{ formatDate(item.created_at) }}
@@ -104,6 +121,7 @@ interface Pedido {
   telefono?: string
   created_at: string
   metodo_pago: string
+  comprobante_url?: string
   users?: {
     nombre: string
     email: string
@@ -134,6 +152,7 @@ const headers = [
   { title: 'Estado', key: 'estado', sortable: true },
   { title: 'Tipo Entrega', key: 'tipo_entrega', sortable: true },
   { title: 'Método Pago', key: 'metodo_pago', sortable: true },
+  { title: 'Comprobante', key: 'comprobante_url', sortable: false, align: 'center' as const },
   { title: 'Fecha', key: 'created_at', sortable: true },
   { title: 'Acciones', key: 'actions', sortable: false, align: 'center' as const }
 ]
@@ -141,6 +160,7 @@ const headers = [
 const getEstadoColor = (estado: string) => {
   const colors: Record<string, string> = {
     pendiente: 'orange',
+    pagado: 'purple',
     en_proceso: 'blue',
     completado: 'green',
     cancelado: 'red',
@@ -152,6 +172,7 @@ const getEstadoColor = (estado: string) => {
 const formatEstado = (estado: string) => {
   const estados: Record<string, string> = {
     pendiente: 'Pendiente',
+    pagado: 'Pagado',
     en_proceso: 'En proceso',
     completado: 'Completado',
     cancelado: 'Cancelado',
@@ -177,6 +198,14 @@ const formatMetodoPago = (metodo: string) => {
     mercado_pago: 'Mercado Pago'
   }
   return metodos[metodo] || metodo
+}
+
+const API_BASE = import.meta.env.VITE_PREFI_API || 'http://localhost:3001'
+
+const getComprobanteUrl = (url: string) => {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return `${API_BASE}${url}`
 }
 
 const formatDate = (date: string) => {

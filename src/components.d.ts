@@ -12,6 +12,10 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppFooter: typeof import('./components/AppFooter.vue')['default']
+    ClientCreateDialog: typeof import('./components/clients/ClientCreateDialog.vue')['default']
+    ClientDeleteDialog: typeof import('./components/clients/ClientDeleteDialog.vue')['default']
+    ClientEditDialog: typeof import('./components/clients/ClientEditDialog.vue')['default']
+    ClientsTable: typeof import('./components/clients/ClientsTable.vue')['default']
     ForgotPasswordForm: typeof import('./components/auth/ForgotPasswordForm.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     LoginForm: typeof import('./components/auth/LoginForm.vue')['default']
@@ -19,13 +23,20 @@ declare module 'vue' {
     OrderCreateDialog: typeof import('./components/orders/OrderCreateDialog.vue')['default']
     OrderDeleteDialog: typeof import('./components/orders/OrderDeleteDialog.vue')['default']
     OrderEditDialog: typeof import('./components/orders/OrderEditDialog.vue')['default']
+    OrderLocalDialog: typeof import('./components/orders/OrderLocalDialog.vue')['default']
     OrderViewDialog: typeof import('./components/orders/OrderViewDialog.vue')['default']
+    ProductCreateDialog: typeof import('./components/stock/ProductCreateDialog.vue')['default']
+    ProductDeleteDialog: typeof import('./components/stock/ProductDeleteDialog.vue')['default']
+    ProductEditDialog: typeof import('./components/stock/ProductEditDialog.vue')['default']
     ProductsForm: typeof import('./components/products/ProductsForm.vue')['default']
     ProductsTable: typeof import('./components/products/ProductsTable.vue')['default']
     RegisterForm: typeof import('./components/auth/RegisterForm.vue')['default']
     ResetPasswordForm: typeof import('./components/auth/ResetPasswordForm.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SettingsEditDialog: typeof import('./components/settings/SettingsEditDialog.vue')['default']
+    SettingsTable: typeof import('./components/settings/SettingsTable.vue')['default']
+    StockTable: typeof import('./components/stock/StockTable.vue')['default']
     TableOrders: typeof import('./components/orders/TableOrders.vue')['default']
   }
 }

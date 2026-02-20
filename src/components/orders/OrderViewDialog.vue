@@ -36,6 +36,35 @@
           <span>Total</span>
           <strong>{{ totalLabel }}</strong>
         </div>
+
+        <!-- Comprobante de transferencia -->
+        <div v-if="pedido?.comprobante_url" class="mt-4">
+          <v-divider class="mb-4"></v-divider>
+          <div class="items-title text-blue-grey">Comprobante de Transferencia</div>
+          <v-card variant="outlined" class="rounded-lg pa-2" max-width="400">
+            <v-img
+              v-if="isImage(pedido.comprobante_url)"
+              :src="comprobanteFullUrl"
+              max-height="300"
+              contain
+              class="rounded cursor-pointer"
+              @click="openComprobante"
+            >
+              <template v-slot:placeholder>
+                <div class="d-flex align-center justify-center fill-height">
+                  <v-progress-circular indeterminate color="grey-lighten-2"></v-progress-circular>
+                </div>
+              </template>
+            </v-img>
+            <div v-else class="d-flex align-center pa-3">
+              <v-icon icon="mdi-file-pdf-box" color="red" size="40" class="mr-3"></v-icon>
+              <div>
+                <div class="font-weight-bold">Comprobante PDF</div>
+                <a :href="comprobanteFullUrl" target="_blank" class="text-blue-darken-2">Ver archivo</a>
+              </div>
+            </div>
+          </v-card>
+        </div>
       </v-card-text>
       <v-card-actions class="px-6 pb-4">
         <v-spacer></v-spacer>
@@ -91,6 +120,7 @@ const estadoLabel = computed(() => {
   const estado = props.pedido?.estado
   const estados: Record<string, string> = {
     pendiente: 'Pendiente',
+    pagado: 'Pagado',
     en_proceso: 'En proceso',
     completado: 'Completado',
     cancelado: 'Cancelado',
@@ -106,6 +136,23 @@ const totalLabel = computed(() => {
 
 const formatCurrency = (value: number) => {
   return `$${value.toFixed(2)}`
+}
+
+const API_BASE = import.meta.env.VITE_PREFI_API || 'http://localhost:3001'
+
+const comprobanteFullUrl = computed(() => {
+  const url = props.pedido?.comprobante_url
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return `${API_BASE}${url}`
+})
+
+const isImage = (url: string) => {
+  return /\.(jpg|jpeg|png|webp)$/i.test(url)
+}
+
+const openComprobante = () => {
+  window.open(comprobanteFullUrl.value, '_blank')
 }
 </script>
 

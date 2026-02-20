@@ -157,6 +157,8 @@ meta:
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { obtainDashboard } from '@/services/admin/obtainDashboard.service'
+import { obtainOrders } from '@/services/admin/obtainOrders.service'
+import api from '@/api/axios'
 import {
   Chart as ChartJS,
   ArcElement,
@@ -287,17 +289,40 @@ const barOptions = {
 
 const fetchStats = async () => {
   try {
-    const response = await obtainDashboard()
+    const [response, ordersResponse, productsResponse] = await Promise.all([
+      obtainDashboard(),
+      obtainOrders(),
+      api.get('/products/list')
+    ])
     const apiData = response.data.data
-    
+
+    // Contar estados desde los pedidos reales
+    const pedidos = ordersResponse.data.data?.data || []
+    const pendientes = pedidos.filter((p: any) => p.estado?.toLowerCase() === 'pendiente').length
+    const pagados = pedidos.filter((p: any) => p.estado?.toLowerCase() === 'pagado').length
+    const enProceso = pedidos.filter((p: any) => p.estado?.toLowerCase() === 'en proceso').length
+    const realizados = pedidos.filter((p: any) => p.estado?.toLowerCase() === 'completado').length
+    const rechazados = pedidos.filter((p: any) => p.estado?.toLowerCase() === 'cancelado').length
+
+    // Obtener todos los productos y filtrar stock < 10
+    const prodData = productsResponse.data
+    const allProducts = Array.isArray(prodData?.data?.data)
+      ? prodData.data.data
+      : Array.isArray(prodData?.data)
+        ? prodData.data
+        : Array.isArray(prodData)
+          ? prodData
+          : []
+    const stockCritico = allProducts.filter((item: any) => Number(item.stock) < 10)
+
     stats.value = {
       ventasHoy: apiData.ventas_totales_hoy || 0,
-      pendientes: apiData.pedidos_pendientes || 0,
-      realizados: apiData.pedidos_realizados || 0,
-      rechazados: apiData.pedidos_rechazados || 0,
-      alertasStock: apiData.stock_critico.map((item: any) => ({
+      pendientes: pendientes + pagados + enProceso,
+      realizados,
+      rechazados,
+      alertasStock: stockCritico.map((item: any) => ({
         nombre: item.nombre,
-        stock: item.stock
+        stock: Number(item.stock)
       })),
       totalProductos: apiData.total_productos || apiData.productos_mas_vendidos.length,
       precioMedio: apiData.precio_promedio || 0,
