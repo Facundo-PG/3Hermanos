@@ -958,12 +958,12 @@ const valores = [
 ]
 
 const horarios = [
-  { dia: 'Lunes', horario: '8:00 - 18:00', abierto: true },
-  { dia: 'Martes', horario: '8:00 - 18:00', abierto: true },
-  { dia: 'Miércoles', horario: '8:00 - 18:00', abierto: true },
-  { dia: 'Jueves', horario: '8:00 - 18:00', abierto: true },
-  { dia: 'Viernes', horario: '8:00 - 18:00', abierto: true },
-  { dia: 'Sábado', horario: '8:00 - 13:00', abierto: true },
+  { dia: 'Lunes', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
+  { dia: 'Martes', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
+  { dia: 'Miércoles', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
+  { dia: 'Jueves', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
+  { dia: 'Viernes', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
+  { dia: 'Sábado', horario: '09:00 - 13:00', abierto: true },
   { dia: 'Domingo', horario: 'Cerrado', abierto: false },
   { dia: 'Feriados', horario: 'Consultar', abierto: false },
 ]
@@ -1221,8 +1221,13 @@ const fetchSettings = async () => {
     const response = await api.get('/settings/list')
     const d = response.data
     const raw = d?.data?.data ?? d?.data ?? d
-    const arr = Array.isArray(raw) ? raw : []
-    settings.value = arr.length > 0 ? arr[0] : null
+    if (Array.isArray(raw)) {
+      settings.value = raw.length > 0 ? raw[0] : null
+    } else if (raw && typeof raw === 'object') {
+      settings.value = raw
+    } else {
+      settings.value = null
+    }
   } catch (error) {
     console.error('Error al cargar configuración:', error)
   }

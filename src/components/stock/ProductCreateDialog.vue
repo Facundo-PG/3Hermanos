@@ -25,6 +25,19 @@
             class="mb-4"
           ></v-textarea>
 
+          <v-select
+            v-model="formData.category_id"
+            :items="categories"
+            item-title="nombre"
+            item-value="id"
+            label="Categoría"
+            variant="outlined"
+            density="comfortable"
+            clearable
+            class="mb-4"
+            prepend-inner-icon="mdi-tag"
+          ></v-select>
+
           <v-row>
             <v-col cols="6">
               <v-text-field
@@ -74,6 +87,7 @@ import type { VForm } from 'vuetify/components'
 defineProps<{
   modelValue: boolean
   saving?: boolean
+  categories: { id: number; nombre: string }[]
 }>()
 
 const emit = defineEmits<{
@@ -95,6 +109,7 @@ const formData = ref({
   descripcion: '',
   precio: null as number | null,
   stock: null as number | null,
+  category_id: null as number | null,
 })
 
 const handleSave = async () => {
@@ -106,6 +121,7 @@ const handleSave = async () => {
     descripcion: formData.value.descripcion || '',
     precio: Number(formData.value.precio),
     stock: Number(formData.value.stock),
+    category_id: formData.value.category_id || undefined,
   })
 }
 

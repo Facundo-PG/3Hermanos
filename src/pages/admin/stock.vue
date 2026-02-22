@@ -70,6 +70,7 @@ meta:
     <ProductCreateDialog
       v-model="createDialog"
       :saving="saving"
+      :categories="categoryList"
       @close="createDialog = false"
       @save="saveNewProduct"
     />
@@ -79,6 +80,7 @@ meta:
       v-model="editDialog"
       :product="editedProduct"
       :saving="saving"
+      :categories="categoryList"
       @close="closeEdit"
       @save="saveProduct"
     />
@@ -117,7 +119,14 @@ interface Product {
   descripcion: string
   precio: number
   stock: number
+  category_id: number | null
+  categories: { id: number; nombre: string } | null
   created_at: string
+}
+
+interface Category {
+  id: number
+  nombre: string
 }
 
 // State
@@ -132,6 +141,7 @@ const originalStock = ref(0)
 const productToDelete = ref<Product | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
+const categoryList = ref<Category[]>([])
 
 // Snackbar
 const snackbar = ref(false)
@@ -157,6 +167,14 @@ const fetchProducts = async () => {
       created_at: p.created_at || p.createdAt || null,
       updated_at: p.updated_at || p.updatedAt || null,
     }))
+    // Extract unique categories from products
+    const catsMap = new Map<number, Category>()
+    arr.forEach((p: any) => {
+      if (p.categories?.id && p.categories?.nombre) {
+        catsMap.set(p.categories.id, { id: p.categories.id, nombre: p.categories.nombre })
+      }
+    })
+    categoryList.value = Array.from(catsMap.values()).sort((a, b) => a.nombre.localeCompare(b.nombre))
   } catch (error) {
     console.error('Error al cargar productos:', error)
     showSnackbar('Error al cargar los productos', 'error')
@@ -184,7 +202,10 @@ const saveNewProduct = async (data: any) => {
 
 // Edit
 const editProduct = (product: Product) => {
-  editedProduct.value = { ...product }
+  editedProduct.value = {
+    ...product,
+    category_id: product.categories?.id ?? product.category_id ?? null,
+  }
   originalStock.value = Number(product.stock)
   editDialog.value = true
 }
@@ -204,6 +225,7 @@ const saveProduct = async (stockToAdd: number) => {
       descripcion: editedProduct.value.descripcion,
       precio: Number(editedProduct.value.precio),
       stock: newStock,
+      category_id: editedProduct.value.category_id || undefined,
     }
     await updateProduct(editedProduct.value.id, updateData)
     showSnackbar('Producto actualizado correctamente', 'success')
