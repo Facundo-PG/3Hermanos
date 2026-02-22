@@ -39,9 +39,14 @@
           <span class="text-grey-darken-1">{{ item.descripcion || '-' }}</span>
         </template>
 
-        <!-- Fecha Column -->
+        <!-- Fecha Creación Column -->
         <template v-slot:item.created_at="{ item }">
           {{ formatDate(item.created_at) }}
+        </template>
+
+        <!-- Fecha Actualización Column -->
+        <template v-slot:item.updated_at="{ item }">
+          {{ formatDate(item.updated_at) }}
         </template>
 
         <!-- Acciones -->
@@ -86,7 +91,8 @@ const headers = [
   { title: 'Descripción', key: 'descripcion', sortable: false },
   { title: 'Precio', key: 'precio', sortable: true },
   { title: 'Stock', key: 'stock', sortable: true },
-  { title: 'Fecha', key: 'created_at', sortable: true },
+  { title: 'Creado', key: 'created_at', sortable: true },
+  { title: 'Actualizado', key: 'updated_at', sortable: true },
   { title: 'Acciones', key: 'actions', sortable: false, align: 'center' as const, width: '120px' },
 ]
 
@@ -100,10 +106,12 @@ const getStockColor = (stock: number): string => {
 const formatDate = (date: string): string => {
   if (!date) return '-'
   const d = new Date(date)
-  return d.toLocaleDateString('es-AR', {
+  return d.toLocaleString('es-AR', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   })
 }
 </script>

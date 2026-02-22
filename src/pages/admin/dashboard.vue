@@ -192,14 +192,11 @@ const doughnutData = computed(() => ({
   datasets: [{
     data: stats.value.distribucionStock?.map(p => p.stock) || [],
     backgroundColor: [
-      '#EF5350',
-      '#FF7043',
-      '#FFA726',
-      '#FFCA28',
-      '#66BB6A',
-      '#26A69A',
-      '#42A5F5',
-      '#5C6BC0',
+      '#EF5350', '#FF7043', '#FFA726', '#FFCA28',
+      '#66BB6A', '#26A69A', '#42A5F5', '#5C6BC0',
+      '#AB47BC', '#EC407A', '#8D6E63', '#78909C',
+      '#D4E157', '#29B6F6', '#FF8A65', '#9CCC65',
+      '#7E57C2', '#26C6DA', '#FFEE58', '#AED581',
     ],
     borderColor: '#1E1E1E',
     borderWidth: 2,
@@ -208,17 +205,21 @@ const doughnutData = computed(() => ({
 
 const doughnutOptions = {
   responsive: true,
-  maintainAspectRatio: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       position: 'bottom' as const,
       labels: {
         color: '#333',
         font: {
-          size: 12,
+          size: 11,
           family: 'Roboto'
         },
-        padding: 15
+        padding: 10,
+        boxWidth: 14,
+        boxHeight: 14,
+        usePointStyle: true,
+        pointStyle: 'rectRounded'
       }
     },
     tooltip: {
@@ -249,7 +250,7 @@ const barData = computed(() => ({
 
 const barOptions = {
   responsive: true,
-  maintainAspectRatio: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       display: false
@@ -315,6 +316,21 @@ const fetchStats = async () => {
           : []
     const stockCritico = allProducts.filter((item: any) => Number(item.stock) < 10)
 
+    // Calcular ventas por producto desde los pedidos reales
+    const ventasPorProducto: Record<string, number> = {}
+    for (const pedido of pedidos) {
+      const orderItems = pedido.items || pedido.order_items || pedido.productos || pedido.detalle || []
+      if (!Array.isArray(orderItems)) continue
+      for (const item of orderItems) {
+        const product = item.product || item.producto || item.products || item
+        const nombre = product?.nombre || product?.name || item.nombre || item.name || ''
+        const cantidad = Number(item.cantidad || item.quantity || item.qty || 0)
+        if (nombre) {
+          ventasPorProducto[nombre] = (ventasPorProducto[nombre] || 0) + cantidad
+        }
+      }
+    }
+
     stats.value = {
       ventasHoy: apiData.ventas_totales_hoy || 0,
       pendientes: pendientes + pagados + enProceso,
@@ -324,19 +340,25 @@ const fetchStats = async () => {
         nombre: item.nombre,
         stock: Number(item.stock)
       })),
-      totalProductos: apiData.total_productos || apiData.productos_mas_vendidos.length,
-      precioMedio: apiData.precio_promedio || 0,
-      stockTotal: apiData.stock_total || 0,
-      topProductos: apiData.productos_mas_vendidos.map((item: any) => ({
-        nombre: item.nombre,
-        precio: item.precio || 0,
-        stock: item.stock || 0,
-        ventas: item.cantidad_vendida
-      })),
-      distribucionStock: apiData.productos_mas_vendidos.map((item: any) => ({
-        nombre: item.nombre,
-        stock: item.stock || item.cantidad_vendida || 0
-      }))
+      totalProductos: allProducts.length || apiData.total_productos || 0,
+      precioMedio: allProducts.length > 0
+        ? allProducts.reduce((sum: number, p: any) => sum + Number(p.precio || 0), 0) / allProducts.length
+        : apiData.precio_promedio || 0,
+      stockTotal: allProducts.length > 0
+        ? allProducts.reduce((sum: number, p: any) => sum + Number(p.stock || 0), 0)
+        : apiData.stock_total || 0,
+      topProductos: allProducts.map((prod: any) => ({
+        nombre: prod.nombre,
+        precio: Number(prod.precio) || 0,
+        stock: Number(prod.stock) || 0,
+        ventas: ventasPorProducto[prod.nombre] || 0
+      })).sort((a: any, b: any) => b.ventas - a.ventas),
+      distribucionStock: allProducts
+        .filter((item: any) => Number(item.stock) > 0)
+        .map((item: any) => ({
+          nombre: item.nombre,
+          stock: Number(item.stock)
+        }))
     }
   } catch (error) {
     console.error('Error al cargar estadísticas', error)
@@ -415,15 +437,17 @@ onMounted(() => {
 }
 
 .chart-container {
-  height: 300px;
+  min-height: 350px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
 }
 
 .chart-container-bar {
   height: 350px;
+  width: 100%;
   position: relative;
 }
 

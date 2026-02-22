@@ -1,5 +1,4 @@
 <template>
-  <v-app>
     <div class="login-wrapper">
       <div class="background-blur"></div>
       <div class="background-shapes">
@@ -55,7 +54,6 @@
         </v-row>
       </v-container>
     </div>
-  </v-app>
 </template>
 
 <script setup lang="ts">

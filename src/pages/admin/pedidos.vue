@@ -266,6 +266,8 @@ const savePedidoLocal = async (data: any) => {
     const stockMatch = mensajeBack.match(/Stock insuficiente para (.+?)\./) 
     if (stockMatch) {
       showSnackbar(`Sin stock de ${stockMatch[1]}`, 'error')
+    } else if (mensajeBack) {
+      showSnackbar(mensajeBack.replace('Error al crear la orden: ', ''), 'error')
     } else {
       showSnackbar('Error al registrar la venta', 'error')
     }
@@ -288,6 +290,8 @@ const savePedidoCreate = async (data: any) => {
     const stockMatch = mensajeBack.match(/Stock insuficiente para (.+?)\./)
     if (stockMatch) {
       showSnackbar(`El pedido no puede ser creado ya que nos quedamos sin stock de ${stockMatch[1]}`, 'error')
+    } else if (mensajeBack) {
+      showSnackbar(mensajeBack.replace('Error al crear la orden: ', ''), 'error')
     } else {
       showSnackbar('Error al crear el pedido', 'error')
     }

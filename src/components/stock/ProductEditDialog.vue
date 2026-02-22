@@ -39,13 +39,31 @@
             </v-col>
             <v-col cols="6">
               <v-text-field
-                v-model.number="product.stock"
-                label="Stock"
-                type="number"
+                :model-value="Number(product.stock).toFixed(1)"
+                label="Stock Actual"
                 suffix="Kg"
-                :rules="[rules.required, rules.minStock]"
                 variant="outlined"
                 density="comfortable"
+                readonly
+                disabled
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                v-model.number="stockToAdd"
+                label="Cantidad a agregar al stock"
+                type="number"
+                suffix="Kg"
+                :rules="[rules.minStockAdd]"
+                variant="outlined"
+                density="comfortable"
+                hint="Ingresá la cantidad de stock que querés sumar"
+                persistent-hint
+                color="teal-darken-2"
+                prepend-inner-icon="mdi-plus-circle-outline"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -80,21 +98,23 @@ defineProps<{
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
   close: []
-  save: []
+  save: [stockToAdd: number]
 }>()
 
 const formRef = ref<InstanceType<typeof VForm> | null>(null)
+const stockToAdd = ref(0)
 
 const rules = {
   required: (v: any) => (!!v || v === 0) ? true : 'Este campo es obligatorio',
   minPrecio: (v: number) => (v && v > 0) ? true : 'El precio debe ser mayor a 0',
-  minStock: (v: number) => (v !== null && v !== undefined && v >= 0) ? true : 'El stock no puede ser negativo',
+  minStockAdd: (v: number) => (v !== null && v !== undefined && v >= 0) ? true : 'La cantidad no puede ser negativa',
 }
 
 const handleSave = async () => {
   const { valid } = await formRef.value!.validate()
   if (valid) {
-    emit('save')
+    emit('save', stockToAdd.value || 0)
+    stockToAdd.value = 0
   }
 }
 </script>

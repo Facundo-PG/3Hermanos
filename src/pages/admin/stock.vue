@@ -128,6 +128,7 @@ const createDialog = ref(false)
 const editDialog = ref(false)
 const deleteDialog = ref(false)
 const editedProduct = ref<Product | null>(null)
+const originalStock = ref(0)
 const productToDelete = ref<Product | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
@@ -150,7 +151,12 @@ const fetchProducts = async () => {
         : Array.isArray(d)
           ? d
           : []
-    products.value = arr
+    // Normalize field names (camelCase → snake_case) for dates
+    products.value = arr.map((p: any) => ({
+      ...p,
+      created_at: p.created_at || p.createdAt || null,
+      updated_at: p.updated_at || p.updatedAt || null,
+    }))
   } catch (error) {
     console.error('Error al cargar productos:', error)
     showSnackbar('Error al cargar los productos', 'error')
@@ -179,6 +185,7 @@ const saveNewProduct = async (data: any) => {
 // Edit
 const editProduct = (product: Product) => {
   editedProduct.value = { ...product }
+  originalStock.value = Number(product.stock)
   editDialog.value = true
 }
 
@@ -187,15 +194,16 @@ const closeEdit = () => {
   editedProduct.value = null
 }
 
-const saveProduct = async () => {
+const saveProduct = async (stockToAdd: number) => {
   if (!editedProduct.value) return
   saving.value = true
   try {
+    const newStock = originalStock.value + Number(stockToAdd || 0)
     const updateData = {
       nombre: editedProduct.value.nombre,
       descripcion: editedProduct.value.descripcion,
       precio: Number(editedProduct.value.precio),
-      stock: Number(editedProduct.value.stock),
+      stock: newStock,
     }
     await updateProduct(editedProduct.value.id, updateData)
     showSnackbar('Producto actualizado correctamente', 'success')

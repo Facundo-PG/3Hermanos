@@ -1,5 +1,4 @@
 <template>
-  <v-app>
     <v-app-bar color="grey-darken-4" prominent elevation="2">
       <v-app-bar-nav-icon @click="drawer = !drawer" color="red-darken-2"></v-app-bar-nav-icon>
       
@@ -63,7 +62,6 @@
     <v-main>
       <router-view />
     </v-main>
-  </v-app>
 </template>
 
 <script setup lang="ts">

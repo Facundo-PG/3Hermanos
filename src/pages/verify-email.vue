@@ -14,5 +14,5 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-app></v-app>
+  <div></div>
 </template>

@@ -1,8 +1,9 @@
 <template>
-  <v-app>
-    <!-- Navbar -->
+    <!-- ======================== NAVBAR ======================== -->
     <v-app-bar color="red-darken-2" elevation="4" density="comfortable">
-      <v-app-bar-title class="text-h5 font-weight-bold d-flex align-center">
+      <v-app-bar-nav-icon @click="menuDrawer = !menuDrawer" color="white"></v-app-bar-nav-icon>
+
+      <v-app-bar-title class="text-h5 font-weight-bold d-flex align-center" style="cursor: pointer;" @click="scrollTo('inicio')">
         <v-icon icon="mdi-egg" class="mr-2" size="30"></v-icon>
         <span class="d-none d-sm-inline">Granja 3 Hermanos</span>
         <span class="d-sm-none">3 Hermanos</span>
@@ -10,8 +11,21 @@
 
       <v-spacer></v-spacer>
 
+      <!-- Links desktop -->
+      <div class="d-none d-md-flex align-center ga-1 mr-2">
+        <v-btn variant="text" color="white" class="text-none" @click="scrollTo('inicio')">
+          <v-icon start icon="mdi-home" size="small"></v-icon> Inicio
+        </v-btn>
+        <v-btn variant="text" color="white" class="text-none" @click="scrollTo('productos')">
+          <v-icon start icon="mdi-food-drumstick" size="small"></v-icon> Productos
+        </v-btn>
+        <v-btn variant="text" color="white" class="text-none" @click="scrollTo('nosotros')">
+          <v-icon start icon="mdi-information" size="small"></v-icon> Nosotros
+        </v-btn>
+      </div>
+
       <!-- Usuario logueado -->
-      <v-chip variant="tonal" color="white" class="mr-2 d-none d-md-flex">
+      <v-chip variant="tonal" color="white" class="mr-2 d-none d-sm-flex">
         <v-icon start icon="mdi-account"></v-icon>
         {{ authStore.user?.nombre || 'Cliente' }}
       </v-chip>
@@ -31,67 +45,177 @@
       <v-btn icon="mdi-logout" @click="handleLogout"></v-btn>
     </v-app-bar>
 
-    <v-main class="products-page">
-      <!-- Hero Section -->
-      <div class="hero-section">
-        <v-container>
-          <div class="text-center py-8">
-            <h1 class="text-h3 text-md-h2 font-weight-black mb-3 text-white">
-              Nuestros Productos
-            </h1>
-            <p class="text-h6 text-white" style="opacity: 0.85;">
-              Productos frescos directo de la granja a tu mesa
-            </p>
+    <!-- ======================== MENU DRAWER (hamburguesa) ======================== -->
+    <v-navigation-drawer v-model="menuDrawer" temporary>
+      <div class="pa-4 bg-red-darken-2">
+        <div class="d-flex align-center">
+          <v-icon icon="mdi-egg" color="white" size="36" class="mr-3"></v-icon>
+          <div>
+            <div class="text-h6 font-weight-bold text-white">Granja 3 Hermanos</div>
+            <div class="text-caption text-white" style="opacity: 0.8;">{{ authStore.user?.nombre || 'Cliente' }}</div>
           </div>
-        </v-container>
+        </div>
       </div>
 
-      <v-container class="mt-n8" style="position: relative; z-index: 2;">
-        <!-- Buscador -->
-        <v-row class="mb-4">
-          <v-col cols="12" md="6" offset-md="3">
-            <v-card elevation="4" class="rounded-xl">
-              <v-card-text class="pa-2">
+      <v-list nav density="comfortable">
+        <v-list-item
+          prepend-icon="mdi-home"
+          title="Inicio"
+          @click="scrollTo('inicio'); menuDrawer = false"
+        ></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-food-drumstick"
+          title="Productos"
+          @click="scrollTo('productos'); menuDrawer = false"
+        ></v-list-item>
+        <v-list-item
+          prepend-icon="mdi-cart"
+          title="Mi Carrito"
+          @click="showCart = true; menuDrawer = false"
+        >
+          <template v-slot:append>
+            <v-badge v-if="cartItemsCount > 0" :content="cartItemsCount" color="red-darken-2" inline></v-badge>
+          </template>
+        </v-list-item>
+        <v-list-item
+          prepend-icon="mdi-information"
+          title="Nosotros"
+          @click="scrollTo('nosotros'); menuDrawer = false"
+        ></v-list-item>
+        <v-divider class="my-2"></v-divider>
+        <v-list-item
+          prepend-icon="mdi-logout"
+          title="Cerrar Sesión"
+          base-color="red-darken-2"
+          @click="handleLogout"
+        ></v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-main class="products-page">
+      <!-- ======================== INICIO / LANDING ======================== -->
+      <section id="inicio">
+        <div class="landing-hero">
+          <div class="landing-hero-overlay"></div>
+          <v-container class="landing-hero-content">
+            <v-row align="center" justify="center" style="min-height: 85vh;">
+              <v-col cols="12" md="8" class="text-center">
+                <v-icon icon="mdi-egg" size="80" color="white" class="mb-4 landing-icon"></v-icon>
+                <h1 class="text-h2 text-md-h1 font-weight-black text-white mb-4 landing-title">
+                  {{ settings?.nombre_negocio || 'Granja 3 Hermanos' }}
+                </h1>
+                <p class="text-h5 text-md-h4 text-white mb-8" style="opacity: 0.9; font-weight: 300;">
+                  Productos frescos directo de la granja a tu mesa
+                </p>
+                <div class="d-flex flex-wrap justify-center ga-4 mb-12">
+                  <v-btn
+                    color="white"
+                    size="x-large"
+                    rounded="pill"
+                    class="text-none font-weight-bold text-red-darken-2"
+                    @click="scrollTo('productos')"
+                    elevation="8"
+                  >
+                    <v-icon start icon="mdi-food-drumstick"></v-icon>
+                    Ver Productos
+                  </v-btn>
+                  <v-btn
+                    variant="outlined"
+                    color="white"
+                    size="x-large"
+                    rounded="pill"
+                    class="text-none font-weight-bold"
+                    @click="scrollTo('nosotros')"
+                  >
+                    <v-icon start icon="mdi-information"></v-icon>
+                    Conócenos
+                  </v-btn>
+                </div>
+
+                <!-- Features -->
+                <v-row justify="center" class="mt-4">
+                  <v-col cols="12" sm="4" v-for="feature in landingFeatures" :key="feature.title">
+                    <v-card
+                      color="rgba(255,255,255,0.15)"
+                      variant="flat"
+                      class="rounded-xl pa-5 feature-card"
+                      style="backdrop-filter: blur(10px);"
+                    >
+                      <v-icon :icon="feature.icon" size="40" color="white" class="mb-3"></v-icon>
+                      <div class="text-subtitle-1 font-weight-bold text-white">{{ feature.title }}</div>
+                      <div class="text-body-2 text-white" style="opacity: 0.8;">{{ feature.desc }}</div>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-container>
+        </div>
+      </section>
+
+      <!-- ======================== PRODUCTOS ======================== -->
+      <section id="productos">
+        <div class="section-header-productos text-center pt-14 pb-8">
+          <v-container>
+            <v-chip color="red-darken-2" variant="flat" size="small" class="mb-4 font-weight-bold text-none">
+              <v-icon start icon="mdi-food-drumstick" size="small"></v-icon>
+              CATÁLOGO
+            </v-chip>
+            <h2 class="text-h3 font-weight-black text-grey-darken-4 mb-3">
+              Nuestros Productos
+            </h2>
+            <p class="text-subtitle-1 text-grey-darken-1 mb-8" style="max-width: 500px; margin: 0 auto;">
+              Elegí lo que necesitás y hacé tu pedido online
+            </p>
+
+            <!-- Buscador -->
+            <v-row justify="center" class="mb-6">
+              <v-col cols="12" sm="8" md="6">
                 <v-text-field
                   v-model="search"
                   prepend-inner-icon="mdi-magnify"
                   placeholder="Buscar productos..."
-                  variant="plain"
+                  variant="solo"
                   density="comfortable"
                   hide-details
                   clearable
-                  class="px-2"
+                  rounded="pill"
+                  class="search-field"
+                  bg-color="white"
+                  flat
                 ></v-text-field>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
+              </v-col>
+            </v-row>
 
-        <!-- Filtro de categorías -->
-        <div class="d-flex justify-center flex-wrap ga-2 mb-6">
-          <v-chip
-            :color="selectedCategory === null ? 'red-darken-2' : 'grey-lighten-2'"
-            :variant="selectedCategory === null ? 'flat' : 'tonal'"
-            size="default"
-            class="font-weight-bold text-none"
-            @click="selectedCategory = null"
-          >
-            <v-icon start icon="mdi-view-grid" size="small"></v-icon>
-            Todos
-          </v-chip>
-          <v-chip
-            v-for="cat in categoryList"
-            :key="cat"
-            :color="selectedCategory === cat ? 'red-darken-2' : 'grey-lighten-2'"
-            :variant="selectedCategory === cat ? 'flat' : 'tonal'"
-            size="default"
-            class="font-weight-bold text-none"
-            @click="selectedCategory = cat"
-          >
-            <v-icon start :icon="getCategoryIcon(cat)" size="small"></v-icon>
+            <!-- Filtro de categorías -->
+            <div class="d-flex justify-center flex-wrap ga-2">
+              <v-chip
+                :color="selectedCategory === null ? 'red-darken-2' : 'grey-darken-3'"
+                :variant="selectedCategory === null ? 'flat' : 'outlined'"
+                size="default"
+                class="font-weight-bold text-none category-chip"
+                @click="selectedCategory = null"
+              >
+                <v-icon start icon="mdi-view-grid" size="small"></v-icon>
+                Todos
+              </v-chip>
+              <v-chip
+                v-for="cat in categoryList"
+                :key="cat"
+                :color="selectedCategory === cat ? 'red-darken-2' : 'grey-darken-3'"
+                :variant="selectedCategory === cat ? 'flat' : 'outlined'"
+                size="default"
+                class="font-weight-bold text-none category-chip"
+                @click="selectedCategory = cat"
+              >
+                <v-icon start :icon="getCategoryIcon(cat)" size="small"></v-icon>
             {{ cat }}
-          </v-chip>
+              </v-chip>
+            </div>
+          </v-container>
         </div>
+
+        <v-container>
 
         <!-- Loading -->
         <v-row v-if="loading">
@@ -241,7 +365,209 @@
             <p class="text-body-1 text-medium-emphasis">Intentá con otro término de búsqueda</p>
           </v-col>
         </v-row>
-      </v-container>
+        </v-container>
+      </section>
+
+      <!-- ======================== NOSOTROS ======================== -->
+      <section id="nosotros" class="nosotros-section">
+        <v-container class="py-16">
+          <!-- Header -->
+          <div class="text-center mb-12">
+            <v-chip color="red-darken-2" variant="flat" size="small" class="mb-4 font-weight-bold text-none">
+              <v-icon start icon="mdi-heart" size="small"></v-icon>
+              SOBRE NOSOTROS
+            </v-chip>
+            <h2 class="text-h3 font-weight-black text-grey-darken-4 mb-3">
+              Conocé Nuestra Historia
+            </h2>
+            <p class="text-subtitle-1 text-grey-darken-1" style="max-width: 600px; margin: 0 auto;">
+              Somos una empresa familiar dedicada a la producción y comercialización de productos avícolas de la más alta calidad
+            </p>
+          </div>
+
+          <!-- Historia + Imagen -->
+          <v-row justify="center" align="center" class="mb-12">
+            <v-col cols="12" md="6">
+              <v-card class="rounded-xl pa-8" elevation="0" color="white">
+                <div class="d-flex align-center mb-4">
+                  <v-avatar color="red-darken-2" size="48" class="mr-4">
+                    <v-icon icon="mdi-egg" color="white"></v-icon>
+                  </v-avatar>
+                  <div>
+                    <h3 class="text-h5 font-weight-black text-grey-darken-4">Nuestra Historia</h3>
+                    <div class="text-caption text-red-darken-2 font-weight-bold">Desde 2018</div>
+                  </div>
+                </div>
+                <p class="text-body-1 text-grey-darken-2 mb-4" style="line-height: 1.8;">
+                  Lo que comenzó como un emprendimiento familiar hace más de 5 años, hoy se convirtió en una granja
+                  de referencia en la zona. Nos especializamos en pollo fresco, milanesas caseras, productos congelados
+                  y elaborados artesanales.
+                </p>
+                <p class="text-body-1 text-grey-darken-2 mb-6" style="line-height: 1.8;">
+                  Trabajamos día a día para ofrecer productos de primera calidad, con procesos que garantizan
+                  la frescura y el sabor que nos caracteriza. Nuestro compromiso es llevar lo mejor del campo
+                  directamente a tu mesa.
+                </p>
+                <div class="d-flex flex-wrap ga-3">
+                  <v-chip variant="tonal" color="red-darken-2" size="small" class="font-weight-bold">
+                    <v-icon start icon="mdi-calendar" size="small"></v-icon> +5 años
+                  </v-chip>
+                  <v-chip variant="tonal" color="red-darken-2" size="small" class="font-weight-bold">
+                    <v-icon start icon="mdi-account-group" size="small"></v-icon> Empresa Familiar
+                  </v-chip>
+                  <v-chip variant="tonal" color="red-darken-2" size="small" class="font-weight-bold">
+                    <v-icon start icon="mdi-star" size="small"></v-icon> Calidad Premium
+                  </v-chip>
+                </div>
+              </v-card>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-card class="rounded-xl overflow-hidden" elevation="4">
+                <div class="nosotros-image-placeholder d-flex flex-column align-center justify-center">
+                  <v-icon icon="mdi-barn" size="80" color="red-darken-2" class="mb-4" style="opacity: 0.6;"></v-icon>
+                  <div class="text-h6 font-weight-bold text-grey-darken-1">Granja 3 Hermanos</div>
+                  <div class="text-body-2 text-medium-emphasis">Producción artesanal desde 2018</div>
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <!-- Valores -->
+          <v-row class="mb-12" justify="center">
+            <v-col cols="12" sm="6" md="3" v-for="valor in valores" :key="valor.title">
+              <v-card class="rounded-xl text-center pa-6 valor-card" elevation="2" height="100%">
+                <v-avatar :color="valor.color" size="60" class="mb-4">
+                  <v-icon :icon="valor.icon" size="28" color="white"></v-icon>
+                </v-avatar>
+                <h4 class="text-subtitle-1 font-weight-black text-grey-darken-4 mb-2">{{ valor.title }}</h4>
+                <p class="text-body-2 text-grey-darken-1">{{ valor.desc }}</p>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <!-- Info del negocio (desde settings) -->
+          <v-row justify="center">
+            <v-col cols="12" md="8" lg="6">
+              <div class="text-center mb-6">
+                <h3 class="text-h5 font-weight-black text-grey-darken-4">Información del Local</h3>
+              </div>
+              <v-card class="rounded-xl overflow-hidden" elevation="4">
+                <div class="bg-red-darken-2 pa-5 d-flex align-center justify-center">
+                  <v-icon icon="mdi-store" size="32" color="white" class="mr-3"></v-icon>
+                  <h3 class="text-h5 font-weight-black text-white">
+                    {{ settings?.nombre_negocio || 'Granja 3 Hermanos' }}
+                  </h3>
+                  <v-chip
+                    :color="settings?.esta_abierto ? 'green' : 'grey'"
+                    size="small"
+                    variant="flat"
+                    class="ml-4 font-weight-bold"
+                  >
+                    {{ settings?.esta_abierto ? 'Abierto' : 'Cerrado' }}
+                  </v-chip>
+                </div>
+
+                <v-card-text class="pa-0">
+                  <v-list lines="two" class="py-0">
+                    <v-list-item v-if="settings?.direccion_local" class="py-4 px-6">
+                      <template v-slot:prepend>
+                        <v-avatar color="red-lighten-5" rounded="lg" size="44">
+                          <v-icon icon="mdi-map-marker" color="red-darken-2"></v-icon>
+                        </v-avatar>
+                      </template>
+                      <v-list-item-subtitle class="text-caption text-medium-emphasis">Dirección</v-list-item-subtitle>
+                      <v-list-item-title class="font-weight-bold">{{ settings.direccion_local }}</v-list-item-title>
+                    </v-list-item>
+                    <v-divider v-if="settings?.direccion_local"></v-divider>
+
+                    <v-list-item v-if="settings?.whatsapp_notificaciones" class="py-4 px-6">
+                      <template v-slot:prepend>
+                        <v-avatar color="green-lighten-5" rounded="lg" size="44">
+                          <v-icon icon="mdi-whatsapp" color="green-darken-2"></v-icon>
+                        </v-avatar>
+                      </template>
+                      <v-list-item-subtitle class="text-caption text-medium-emphasis">WhatsApp</v-list-item-subtitle>
+                      <v-list-item-title class="font-weight-bold">{{ settings.whatsapp_notificaciones }}</v-list-item-title>
+                      <template v-slot:append>
+                        <v-btn
+                          variant="tonal"
+                          color="green"
+                          size="small"
+                          rounded="pill"
+                          class="text-none"
+                          :href="'https://wa.me/' + settings.whatsapp_notificaciones.replace(/[^0-9]/g, '')"
+                          target="_blank"
+                        >
+                          <v-icon start icon="mdi-open-in-new" size="small"></v-icon>
+                          Contactar
+                        </v-btn>
+                      </template>
+                    </v-list-item>
+                    <v-divider v-if="settings?.whatsapp_notificaciones"></v-divider>
+
+                    <v-list-item v-if="settings?.costo_delivery != null" class="py-4 px-6">
+                      <template v-slot:prepend>
+                        <v-avatar color="blue-lighten-5" rounded="lg" size="44">
+                          <v-icon icon="mdi-truck-delivery" color="blue-darken-2"></v-icon>
+                        </v-avatar>
+                      </template>
+                      <v-list-item-subtitle class="text-caption text-medium-emphasis">Costo de envío</v-list-item-subtitle>
+                      <v-list-item-title class="font-weight-bold text-h6">
+                        ${{ Number(settings.costo_delivery).toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}
+                      </v-list-item-title>
+                    </v-list-item>
+
+                    <template v-if="settings?.mensaje_alerta">
+                      <v-divider></v-divider>
+                      <v-list-item class="py-4 px-6">
+                        <template v-slot:prepend>
+                          <v-avatar color="orange-lighten-5" rounded="lg" size="44">
+                            <v-icon icon="mdi-alert-circle" color="orange-darken-2"></v-icon>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-subtitle class="text-caption text-medium-emphasis">Aviso importante</v-list-item-subtitle>
+                        <v-list-item-title class="font-weight-bold text-wrap">{{ settings.mensaje_alerta }}</v-list-item-title>
+                      </v-list-item>
+                    </template>
+                  </v-list>
+                </v-card-text>
+
+                <!-- Horarios placeholder -->
+                <v-divider></v-divider>
+                <div class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-icon icon="mdi-clock-outline" color="red-darken-2" class="mr-2"></v-icon>
+                    <span class="text-subtitle-2 font-weight-bold text-grey-darken-3">Horarios de Atención</span>
+                  </div>
+                  <v-row dense>
+                    <v-col cols="6" v-for="horario in horarios" :key="horario.dia">
+                      <div class="d-flex justify-space-between align-center py-1">
+                        <span class="text-body-2 text-grey-darken-2">{{ horario.dia }}</span>
+                        <v-chip :color="horario.abierto ? 'green' : 'grey'" size="x-small" variant="tonal" class="font-weight-bold">
+                          {{ horario.horario }}
+                        </v-chip>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
+
+      <!-- Footer -->
+      <footer class="app-footer bg-grey-darken-4 py-8 text-center">
+        <v-container>
+          <v-icon icon="mdi-egg" color="red-darken-2" size="36" class="mb-3"></v-icon>
+          <div class="text-h6 font-weight-bold text-white mb-1">{{ settings?.nombre_negocio || 'Granja 3 Hermanos' }}</div>
+          <div class="text-body-2 text-grey-lighten-1 mb-4">Productos frescos directo de la granja a tu mesa</div>
+          <v-divider color="grey-darken-2" class="mb-4"></v-divider>
+          <div class="text-caption text-grey-lighten-1">
+            © {{ new Date().getFullYear() }} {{ settings?.nombre_negocio || 'Granja 3 Hermanos' }} — Todos los derechos reservados
+          </div>
+        </v-container>
+      </footer>
     </v-main>
 
     <!-- ======================== CARRITO DRAWER ======================== -->
@@ -567,7 +893,22 @@
         <v-btn variant="text" @click="snackbar = false">Cerrar</v-btn>
       </template>
     </v-snackbar>
-  </v-app>
+
+    <!-- ======================== WHATSAPP FLOTANTE ======================== -->
+    <div class="whatsapp-float">
+      <div class="whatsapp-tooltip" @click="showWaTooltip = false">
+        <span>¿Tenés dudas? ¡Estamos para ayudarte!</span>
+        <button class="whatsapp-tooltip-close">&times;</button>
+      </div>
+      <a
+        href="https://wa.me/5491128809967?text=Hola%2C%20tengo%20una%20consulta"
+        target="_blank"
+        class="whatsapp-btn"
+        aria-label="Contactar por WhatsApp"
+      >
+        <v-icon icon="mdi-whatsapp" size="32" color="white"></v-icon>
+      </a>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -598,6 +939,34 @@ interface CartItem {
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+// Menu & Settings
+const menuDrawer = ref(false)
+const settings = ref<any>(null)
+
+const landingFeatures = [
+  { icon: 'mdi-leaf', title: 'Productos Frescos', desc: 'Directo de nuestra granja a tu mesa' },
+  { icon: 'mdi-truck-delivery', title: 'Envío a Domicilio', desc: 'Te lo llevamos a donde estés' },
+  { icon: 'mdi-shield-check', title: 'Calidad Garantizada', desc: 'Los mejores productos de la región' },
+]
+
+const valores = [
+  { icon: 'mdi-hand-heart', title: 'Compromiso', desc: 'Trabajamos con pasión para ofrecerte lo mejor cada día', color: 'red-darken-2' },
+  { icon: 'mdi-leaf', title: 'Frescura', desc: 'Productos del día, sin intermediarios, de la granja a tu mesa', color: 'green-darken-2' },
+  { icon: 'mdi-account-group', title: 'Familia', desc: 'Somos una empresa familiar que cuida a sus clientes como propios', color: 'blue-darken-2' },
+  { icon: 'mdi-medal', title: 'Calidad', desc: 'Control riguroso en cada etapa para garantizar el mejor producto', color: 'orange-darken-2' },
+]
+
+const horarios = [
+  { dia: 'Lunes', horario: '8:00 - 18:00', abierto: true },
+  { dia: 'Martes', horario: '8:00 - 18:00', abierto: true },
+  { dia: 'Miércoles', horario: '8:00 - 18:00', abierto: true },
+  { dia: 'Jueves', horario: '8:00 - 18:00', abierto: true },
+  { dia: 'Viernes', horario: '8:00 - 18:00', abierto: true },
+  { dia: 'Sábado', horario: '8:00 - 13:00', abierto: true },
+  { dia: 'Domingo', horario: 'Cerrado', abierto: false },
+  { dia: 'Feriados', horario: 'Consultar', abierto: false },
+]
 
 // State
 const products = ref<Product[]>([])
@@ -816,7 +1185,9 @@ const confirmOrder = async () => {
     fetchProducts() // Refrescar stock
   } catch (error: any) {
     console.error('Error al confirmar pedido:', error)
-    const msg = error.response?.data?.data?.mensajeError
+    const mensajeBack = error.response?.data?.data?.mensajeError || ''
+    const cleanMsg = mensajeBack.replace('Error al crear la orden: ', '')
+    const msg = cleanMsg
       || error.response?.data?.message
       || 'Error al realizar el pedido'
     showSnackbar(msg, 'error')
@@ -836,6 +1207,27 @@ const copyAlias = () => {
   showSnackbar('Alias copiado al portapapeles', 'success')
 }
 
+const scrollTo = (id: string) => {
+  const el = document.getElementById(id)
+  if (el) {
+    const offset = 64
+    const y = el.getBoundingClientRect().top + window.scrollY - offset
+    window.scrollTo({ top: y, behavior: 'smooth' })
+  }
+}
+
+const fetchSettings = async () => {
+  try {
+    const response = await api.get('/settings/list')
+    const d = response.data
+    const raw = d?.data?.data ?? d?.data ?? d
+    const arr = Array.isArray(raw) ? raw : []
+    settings.value = arr.length > 0 ? arr[0] : null
+  } catch (error) {
+    console.error('Error al cargar configuración:', error)
+  }
+}
+
 const handleLogout = () => {
   authStore.logout()
   router.push('/login')
@@ -843,6 +1235,7 @@ const handleLogout = () => {
 
 onMounted(() => {
   fetchProducts()
+  fetchSettings()
 })
 </script>
 
@@ -852,9 +1245,106 @@ onMounted(() => {
   min-height: 100vh;
 }
 
-.hero-section {
-  background: linear-gradient(135deg, #c62828 0%, #b71c1c 40%, #880e4f 100%);
-  padding-bottom: 60px;
+/* Landing Hero */
+.landing-hero {
+  position: relative;
+  background: linear-gradient(135deg, #c62828 0%, #b71c1c 30%, #880e4f 70%, #4a148c 100%);
+  overflow: hidden;
+}
+
+.landing-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.08) 0%, transparent 50%);
+}
+
+.landing-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-title {
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.landing-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.feature-card {
+  text-align: center;
+  transition: transform 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Section styling */
+.section-header-productos {
+  background: #f8f8f8;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.search-field {
+  max-width: 100%;
+}
+
+.search-field :deep(.v-field) {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.search-field :deep(.v-field:focus-within) {
+  box-shadow: 0 4px 20px rgba(198, 40, 40, 0.15) !important;
+  border-color: #c62828;
+}
+
+.category-chip {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.category-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+}
+
+section {
+  scroll-margin-top: 64px;
+}
+
+/* Nosotros */
+.nosotros-section {
+  background: linear-gradient(180deg, #f5f5f5 0%, #eeeeee 100%);
+}
+
+.nosotros-image-placeholder {
+  height: 350px;
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 50%, #ef9a9a 100%);
+}
+
+.valor-card {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+.valor-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12) !important;
+}
+
+/* Footer */
+.app-footer {
+  margin-top: 0;
 }
 
 /* Product Cards */
@@ -930,5 +1420,107 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* WhatsApp Float */
+.whatsapp-float {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.whatsapp-tooltip {
+  background: white;
+  color: #333;
+  padding: 10px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeInLeft 0.5s ease 1s both;
+}
+
+.whatsapp-tooltip-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+  padding: 0 0 0 4px;
+  line-height: 1;
+}
+
+.whatsapp-tooltip-close:hover {
+  color: #333;
+}
+
+.whatsapp-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #25D366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  flex-shrink: 0;
+  animation: bounceIn 0.6s ease 0.5s both;
+}
+
+.whatsapp-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.5);
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 600px) {
+  .whatsapp-float {
+    bottom: 18px;
+    right: 18px;
+  }
+  .whatsapp-tooltip {
+    display: none;
+  }
+  .whatsapp-btn {
+    width: 52px;
+    height: 52px;
+  }
 }
 </style>
