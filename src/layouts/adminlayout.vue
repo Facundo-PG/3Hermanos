@@ -4,14 +4,14 @@
       
       <v-app-bar-title class="text-h5 font-weight-bold">
         <v-icon icon="mdi-egg" class="mr-2" color="red-darken-2"></v-icon>
-        Granja 3 Hermanos
+        <span class="d-none d-sm-inline">Granja 3 Hermanos</span>
       </v-app-bar-title>
       
       <v-spacer></v-spacer>
       
-      <v-chip class="mr-4" color="red-darken-2" variant="flat">
+      <v-chip class="mr-2 mr-sm-4" color="red-darken-2" variant="flat">
         <v-icon start icon="mdi-shield-crown"></v-icon>
-        Administrador
+        <span class="d-none d-sm-inline">Administrador</span>
       </v-chip>
       
       <v-btn
@@ -19,10 +19,18 @@
         variant="outlined"
         prepend-icon="mdi-logout"
         @click="handleLogout"
-        class="text-none"
+        class="text-none d-none d-sm-flex"
       >
         Cerrar Sesión
       </v-btn>
+      <v-btn
+        color="red-darken-2"
+        variant="outlined"
+        icon="mdi-logout"
+        @click="handleLogout"
+        class="d-sm-none"
+        size="small"
+      ></v-btn>
     </v-app-bar>
 
     <!-- Sidebar Navigation -->

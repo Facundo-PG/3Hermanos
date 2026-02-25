@@ -924,7 +924,7 @@
         <button class="whatsapp-tooltip-close">&times;</button>
       </div>
       <a
-        href="https://wa.me/5491128809967?text=Hola%2C%20tengo%20una%20consulta"
+        href="https://wa.me/5491524570692?text=Hola%2C%20tengo%20una%20consulta"
         target="_blank"
         class="whatsapp-btn"
         aria-label="Contactar por WhatsApp"

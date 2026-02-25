@@ -33,25 +33,24 @@
 
         <!-- Esta Abierto Switch -->
         <template v-slot:item.esta_abierto="{ item }">
-          <v-switch
-            :model-value="item.esta_abierto"
-            color="green-darken-1"
-            hide-details
-            density="compact"
-            inset
-            readonly
-            @click="$emit('toggleOpen', item)"
-          >
-            <template v-slot:label>
-              <v-chip
-                :color="item.esta_abierto ? 'green-darken-1' : 'grey'"
-                size="small"
-                variant="flat"
-              >
-                {{ item.esta_abierto ? 'Abierto' : 'Cerrado' }}
-              </v-chip>
-            </template>
-          </v-switch>
+          <div class="d-flex align-center ga-2" style="white-space: nowrap;">
+            <v-switch
+              :model-value="item.esta_abierto"
+              color="green-darken-1"
+              hide-details
+              density="compact"
+              inset
+              readonly
+              @click="$emit('toggleOpen', item)"
+            ></v-switch>
+            <v-chip
+              :color="item.esta_abierto ? 'green-darken-1' : 'grey'"
+              size="small"
+              variant="flat"
+            >
+              {{ item.esta_abierto ? 'Abierto' : 'Cerrado' }}
+            </v-chip>
+          </div>
         </template>
 
         <!-- Dirección -->
@@ -100,9 +99,9 @@ const headers = [
   { title: 'Negocio', key: 'nombre_negocio', sortable: false },
   { title: 'Costo Delivery', key: 'costo_delivery', sortable: false },
   { title: 'WhatsApp', key: 'whatsapp_notificaciones', sortable: false },
-  { title: 'Estado Local', key: 'esta_abierto', sortable: false, width: '200px' },
-  { title: 'Dirección', key: 'direccion_local', sortable: false },
-  { title: 'Mensaje Alerta', key: 'mensaje_alerta', sortable: false },
+  { title: 'Estado Local', key: 'esta_abierto', sortable: false, minWidth: '200px' },
+  { title: 'Dirección', key: 'direccion_local', sortable: false, minWidth: '150px' },
+  { title: 'Mensaje Alerta', key: 'mensaje_alerta', sortable: false, minWidth: '200px' },
   { title: 'Acciones', key: 'actions', sortable: false, align: 'center' as const, width: '80px' },
 ]
 </script>
@@ -111,5 +110,13 @@ const headers = [
 .settings-card {
   border-radius: 12px !important;
   overflow: hidden;
+}
+
+.settings-card :deep(.v-table__wrapper) {
+  overflow-x: auto;
+}
+
+.settings-card :deep(table) {
+  min-width: 1000px;
 }
 </style>
