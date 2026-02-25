@@ -10,10 +10,13 @@
           <v-text-field
             v-model="setting.nombre_negocio"
             label="Nombre del Negocio"
-            :rules="[rules.required]"
             variant="outlined"
             density="comfortable"
             class="mb-4"
+            readonly
+            bg-color="grey-lighten-4"
+            hint="Este campo no es editable"
+            persistent-hint
           ></v-text-field>
 
           <v-row class="mb-4">

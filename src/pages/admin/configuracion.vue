@@ -107,7 +107,7 @@ const fetchSettings = async () => {
 // Toggle abierto/cerrado rápido
 const toggleOpen = async (setting: Setting) => {
   try {
-    await updateSettings(setting.id, { estaAbierto: !setting.esta_abierto })
+    await updateSettings({ esta_abierto: !setting.esta_abierto })
     showSnackbar(
       !setting.esta_abierto ? 'Local abierto' : 'Local cerrado',
       !setting.esta_abierto ? 'success' : 'warning'
@@ -136,14 +136,13 @@ const saveSetting = async () => {
   saving.value = true
   try {
     const data = {
-      nombreNegocio: editedSetting.value.nombre_negocio,
-      costoDelivery: Number(editedSetting.value.costo_delivery),
-      whatsappNotificaciones: editedSetting.value.whatsapp_notificaciones || '',
-      estaAbierto: editedSetting.value.esta_abierto,
-      direccionLocal: editedSetting.value.direccion_local || '',
-      mensajeAlerta: editedSetting.value.mensaje_alerta || '',
+      costo_delivery: Number(editedSetting.value.costo_delivery),
+      whatsapp_notificaciones: editedSetting.value.whatsapp_notificaciones || '',
+      esta_abierto: editedSetting.value.esta_abierto,
+      direccion_local: editedSetting.value.direccion_local || '',
+      mensaje_alerta: editedSetting.value.mensaje_alerta || '',
     }
-    await updateSettings(editedSetting.value.id, data)
+    await updateSettings(data)
     showSnackbar('Configuración actualizada correctamente', 'success')
     await fetchSettings()
     closeEdit()
