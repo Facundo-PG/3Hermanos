@@ -142,7 +142,7 @@ const comprobanteFullUrl = computed(() => {
   const url = props.pedido?.comprobante_url
   if (!url) return ''
   if (url.startsWith('http')) return url
-  return `${window.location.origin}${url}`
+  return `${window.location.origin}/uploads/${url}`
 })
 
 const isImage = (url: string) => {

@@ -203,7 +203,7 @@ const formatMetodoPago = (metodo: string) => {
 const getComprobanteUrl = (url: string) => {
   if (!url) return ''
   if (url.startsWith('http')) return url
-  return `${window.location.origin}${url}`
+  return `${window.location.origin}/uploads/${url}`
 }
 
 const formatDate = (date: string) => {
