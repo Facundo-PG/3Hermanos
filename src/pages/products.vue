@@ -664,7 +664,7 @@
           >
             <div class="text-body-2">
               Después de confirmar, transferí al alias:
-              <strong class="text-blue-darken-2">granja3hermanos.mp</strong>
+              <strong class="text-blue-darken-2">granjahermanos3</strong>
             </div>
           </v-alert>
 
@@ -814,7 +814,7 @@
                   Transferí el monto total al siguiente alias:
                 </p>
                 <div class="d-flex align-center justify-center pa-3 bg-white rounded-lg mb-2">
-                  <span class="text-h6 font-weight-black text-blue-darken-3 mr-2">granja3hermanos.mp</span>
+                  <span class="text-h6 font-weight-black text-blue-darken-3 mr-2">granjahermanos3</span>
                   <v-btn
                     icon="mdi-content-copy"
                     size="x-small"
@@ -935,7 +935,7 @@
         <button class="whatsapp-tooltip-close">&times;</button>
       </div>
       <a
-        href="https://wa.me/5491524570692?text=Hola%2C%20tengo%20una%20consulta"
+        href="https://wa.me/1124743204?text=Hola%2C%20tengo%20una%20consulta"
         target="_blank"
         class="whatsapp-btn"
         aria-label="Contactar por WhatsApp"
@@ -1268,7 +1268,7 @@ const showSnackbar = (text: string, color: string) => {
 }
 
 const copyAlias = () => {
-  navigator.clipboard.writeText('granja3hermanos.mp')
+  navigator.clipboard.writeText('granjahermanos3')
   showSnackbar('Alias copiado al portapapeles', 'success')
 }
 
