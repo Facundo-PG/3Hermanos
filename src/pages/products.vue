@@ -836,12 +836,22 @@
               prepend-icon="mdi-receipt"
               variant="outlined"
               density="compact"
+              :error="comprobanteExceedsSize"
               hide-details
               :clearable="true"
               show-size
               class="mb-2"
             ></v-file-input>
-            <p class="text-caption text-medium-emphasis">JPG, PNG, WEBP o PDF. Máx 1MB.</p>
+            <v-alert
+              v-if="comprobanteExceedsSize"
+              type="error"
+              density="compact"
+              variant="tonal"
+              class="mt-2 mb-1"
+            >
+              El tamaño del archivo supera el peso esperado (1MB)
+            </v-alert>
+            <p v-else class="text-caption text-medium-emphasis">JPG, PNG, WEBP o PDF. Máx 1MB.</p>
           </div>
         </v-card-text>
 
@@ -860,7 +870,7 @@
             rounded="lg"
             @click="confirmOrder"
             :loading="orderLoading"
-            :disabled="metodoPago === 'Transferencia' && (!comprobanteFile || (Array.isArray(comprobanteFile) && comprobanteFile.length === 0))"
+            :disabled="comprobanteExceedsSize || (metodoPago === 'Transferencia' && (!comprobanteFile || (Array.isArray(comprobanteFile) && comprobanteFile.length === 0)))"
             class="text-none font-weight-bold px-6"
           >
             <v-icon start icon="mdi-send"></v-icon>
@@ -1004,6 +1014,11 @@ const checkoutDialog = ref(false)
 const successDialog = ref(false)
 const lastPaymentMethod = ref('')
 const comprobanteFile = ref<File[] | null>(null)
+const comprobanteExceedsSize = computed(() => {
+  const files = comprobanteFile.value
+  const file = Array.isArray(files) ? files[0] : files
+  return file ? file.size > 1 * 1024 * 1024 : false
+})
 
 // Order options
 const tipoEntrega = ref('Retiro')
