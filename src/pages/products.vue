@@ -678,12 +678,23 @@
             class="mb-4"
           ></v-textarea>
 
-          <!-- Total -->
-          <div class="d-flex justify-space-between align-center mb-4 pa-3 bg-red-lighten-5 rounded-lg">
-            <span class="text-h6 font-weight-bold">Total:</span>
-            <span class="text-h5 font-weight-black text-red-darken-2">
-              ${{ cartTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}
-            </span>
+          <!-- Subtotal + Envío + Total -->
+          <div class="pa-3 bg-red-lighten-5 rounded-lg mb-4">
+            <div class="d-flex justify-space-between mb-1">
+              <span class="text-body-2 text-medium-emphasis">Subtotal:</span>
+              <span class="font-weight-bold">${{ cartSubtotal.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}</span>
+            </div>
+            <div v-if="shippingCost > 0" class="d-flex justify-space-between mb-1">
+              <span class="text-body-2 text-medium-emphasis">Envío:</span>
+              <span class="font-weight-bold">${{ shippingCost.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}</span>
+            </div>
+            <v-divider class="my-2"></v-divider>
+            <div class="d-flex justify-space-between align-center">
+              <span class="text-h6 font-weight-bold">Total:</span>
+              <span class="text-h5 font-weight-black text-red-darken-2">
+                ${{ cartTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}
+              </span>
+            </div>
           </div>
 
           <v-btn
@@ -769,11 +780,22 @@
 
           <v-divider class="my-3"></v-divider>
 
-          <div class="d-flex justify-space-between align-center pa-3 bg-red-lighten-5 rounded-lg">
-            <span class="text-h6 font-weight-bold">Total a pagar:</span>
-            <span class="text-h5 font-weight-black text-red-darken-2">
-              ${{ cartTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}
-            </span>
+          <div class="pa-3 bg-red-lighten-5 rounded-lg">
+            <div class="d-flex justify-space-between mb-1">
+              <span class="text-body-2 text-medium-emphasis">Subtotal:</span>
+              <span class="font-weight-bold">${{ cartSubtotal.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}</span>
+            </div>
+            <div v-if="shippingCost > 0" class="d-flex justify-space-between mb-1">
+              <span class="text-body-2 text-medium-emphasis">Costo de envío:</span>
+              <span class="font-weight-bold">${{ shippingCost.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}</span>
+            </div>
+            <v-divider class="my-2"></v-divider>
+            <div class="d-flex justify-space-between align-center">
+              <span class="text-h6 font-weight-bold">Total a pagar:</span>
+              <span class="text-h5 font-weight-black text-red-darken-2">
+                ${{ cartTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}
+              </span>
+            </div>
           </div>
 
           <!-- Datos de transferencia + comprobante -->
@@ -1052,9 +1074,18 @@ const groupedProducts = computed(() => {
 
 const cartItemsCount = computed(() => cart.value.length)
 
-const cartTotal = computed(() =>
+const cartSubtotal = computed(() =>
   cart.value.reduce((sum, item) => sum + item.quantity * Number(item.precio), 0)
 )
+
+const shippingCost = computed(() => {
+  if (tipoEntrega.value === 'Envio' && settings.value?.costo_delivery != null) {
+    return Number(settings.value.costo_delivery)
+  }
+  return 0
+})
+
+const cartTotal = computed(() => cartSubtotal.value + shippingCost.value)
 
 // Methods
 const fetchProducts = async () => {
