@@ -841,7 +841,7 @@
               show-size
               class="mb-2"
             ></v-file-input>
-            <p class="text-caption text-medium-emphasis">JPG, PNG, WEBP o PDF. Máx 5MB.</p>
+            <p class="text-caption text-medium-emphasis">JPG, PNG, WEBP o PDF. Máx 1MB.</p>
           </div>
         </v-card-text>
 
@@ -1197,16 +1197,21 @@ const confirmOrder = async () => {
     console.log('Comprobante file:', file, 'orderId:', orderId)
 
     if (file && orderId) {
-      try {
-        const formData = new FormData()
-        formData.append('file', file)
-        const uploadRes = await api.post(`/orders/upload-comprobante?order_id=${orderId}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        console.log('Comprobante uploaded:', uploadRes.data)
-      } catch (uploadErr: any) {
-        console.error('Error al subir comprobante:', uploadErr)
-        showSnackbar('Error al subir el comprobante. Contactá al local.', 'error')
+      // Validar tamaño máximo 1MB
+      if (file.size > 1 * 1024 * 1024) {
+        showSnackbar('El comprobante no puede superar 1MB', 'error')
+      } else {
+        try {
+          const formData = new FormData()
+          formData.append('file', file)
+          const uploadRes = await api.post(`/orders/upload-comprobante?order_id=${orderId}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
+          console.log('Comprobante uploaded:', uploadRes.data)
+        } catch (uploadErr: any) {
+          console.error('Error al subir comprobante:', uploadErr)
+          showSnackbar('Error al subir el comprobante. Contactá al local.', 'error')
+        }
       }
     }
 
