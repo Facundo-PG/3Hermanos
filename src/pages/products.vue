@@ -1204,8 +1204,9 @@ const confirmOrder = async () => {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
         console.log('Comprobante uploaded:', uploadRes.data)
-      } catch (uploadErr) {
+      } catch (uploadErr: any) {
         console.error('Error al subir comprobante:', uploadErr)
+        showSnackbar('Error al subir el comprobante. Contactá al local.', 'error')
       }
     }
 
