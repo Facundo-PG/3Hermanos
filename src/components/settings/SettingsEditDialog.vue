@@ -13,10 +13,7 @@
             variant="outlined"
             density="comfortable"
             class="mb-4"
-            readonly
-            bg-color="grey-lighten-4"
-            hint="Este campo no es editable"
-            persistent-hint
+            disabled
           ></v-text-field>
 
           <v-row class="mb-4">
