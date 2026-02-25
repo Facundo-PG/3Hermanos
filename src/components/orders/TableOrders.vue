@@ -200,12 +200,10 @@ const formatMetodoPago = (metodo: string) => {
   return metodos[metodo] || metodo
 }
 
-const API_BASE = import.meta.env.VITE_PREFI_API || 'http://localhost:3001'
-
 const getComprobanteUrl = (url: string) => {
   if (!url) return ''
   if (url.startsWith('http')) return url
-  return `${API_BASE}${url}`
+  return `${window.location.origin}${url}`
 }
 
 const formatDate = (date: string) => {

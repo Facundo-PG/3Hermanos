@@ -138,13 +138,11 @@ const formatCurrency = (value: number) => {
   return `$${value.toFixed(2)}`
 }
 
-const API_BASE = import.meta.env.VITE_PREFI_API || 'http://localhost:3001'
-
 const comprobanteFullUrl = computed(() => {
   const url = props.pedido?.comprobante_url
   if (!url) return ''
   if (url.startsWith('http')) return url
-  return `${API_BASE}${url}`
+  return `${window.location.origin}${url}`
 })
 
 const isImage = (url: string) => {
