@@ -325,6 +325,7 @@
                       v-model.number="product.quantity"
                       type="number"
                       label="Kg"
+                      suffix="kg"
                       variant="outlined"
                       density="compact"
                       min="0.5"
@@ -990,6 +991,7 @@ const notas = ref('')
 const snackbar = ref(false)
 const snackbarText = ref('')
 const snackbarColor = ref('success')
+const showWaTooltip = ref(true)
 
 // Computed
 const categoryList = computed(() => {
@@ -1035,14 +1037,14 @@ const groupedProducts = computed(() => {
   // Primero las categorías en el orden definido
   categoryOrder.forEach(cat => {
     const match = Object.keys(groups).find(k => k.toLowerCase() === cat.toLowerCase())
-    if (match) {
-      sorted[match] = groups[match]
+    if (match && groups[match]) {
+      sorted[match] = groups[match]!
     }
   })
   // Luego las demás categorías que no estén en el orden definido
   Object.keys(groups).forEach(key => {
-    if (!sorted[key]) {
-      sorted[key] = groups[key]
+    if (!sorted[key] && groups[key]) {
+      sorted[key] = groups[key]!
     }
   })
   return sorted

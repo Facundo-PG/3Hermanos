@@ -22,7 +22,7 @@ meta:
       </v-row>
 
       <!-- Search Bar -->
-      <v-row class="mb-4">
+      <v-row class="mb-4" align="center">
         <v-col cols="12" md="4">
           <v-text-field
             v-model="search"
@@ -34,7 +34,55 @@ meta:
             hide-details
             color="red-darken-2"
             bg-color="white"
+            @keyup.enter="fetchPedidos"
+            @click:clear="search = ''; fetchPedidos()"
           ></v-text-field>
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-text-field
+            v-model="dateFrom"
+            label="Desde"
+            type="date"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            color="red-darken-2"
+            bg-color="white"
+            @change="fetchPedidos"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-text-field
+            v-model="dateTo"
+            label="Hasta"
+            type="date"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            color="red-darken-2"
+            bg-color="white"
+            @change="fetchPedidos"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" md="2" class="d-flex ga-2">
+          <v-btn
+            color="red-darken-2"
+            variant="elevated"
+            prepend-icon="mdi-magnify"
+            @click="fetchPedidos"
+            class="text-none"
+          >
+            Buscar
+          </v-btn>
+          <v-btn
+            variant="outlined"
+            color="grey-darken-1"
+            prepend-icon="mdi-filter-off"
+            @click="clearFilters"
+            class="text-none"
+          >
+            Todos
+          </v-btn>
         </v-col>
       </v-row>
 
@@ -63,7 +111,7 @@ meta:
             <v-card-text class="pa-0">
               <TableOrders
                 :pedidos="pedidosWeb"
-                :search="search"
+                :search="''"
                 :loading="loading"
                 @view="viewPedido"
                 @edit="editPedido"
@@ -99,7 +147,7 @@ meta:
             <v-card-text class="pa-0">
               <TableOrders
                 :pedidos="pedidosLocal"
-                :search="search"
+                :search="''"
                 :loading="loading"
                 @view="viewPedido"
                 @edit="editPedido"
@@ -190,6 +238,8 @@ interface Pedido {
 // State
 const pedidos = ref<Pedido[]>([])
 const search = ref('')
+const dateFrom = ref(new Date().toISOString().split('T')[0])
+const dateTo = ref(new Date().toISOString().split('T')[0])
 const loading = ref(false)
 const editDialog = ref(false)
 const viewDialog = ref(false)
@@ -219,7 +269,11 @@ const snackbarColor = ref('success')
 const fetchPedidos = async () => {
   loading.value = true
   try {
-    const response = await obtainOrders()
+    const params: any = {}
+    if (search.value) params.search = search.value
+    if (dateFrom.value) params.dateFrom = dateFrom.value
+    if (dateTo.value) params.dateTo = dateTo.value
+    const response = await obtainOrders(params)
     pedidos.value = response.data.data?.data || []
   } catch (error) {
     console.error('Error al cargar pedidos:', error)
@@ -227,6 +281,13 @@ const fetchPedidos = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const clearFilters = async () => {
+  search.value = ''
+  dateFrom.value = ''
+  dateTo.value = ''
+  await fetchPedidos()
 }
 
 const editPedido = (pedido: Pedido) => {

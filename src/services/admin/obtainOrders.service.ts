@@ -1,7 +1,7 @@
 import api from "../../api/axios";
 
-export const obtainOrders = () => {
-    return api.get('/orders/list');
+export const obtainOrders = (params?: { search?: string; dateFrom?: string; dateTo?: string }) => {
+    return api.get('/orders/list', { params: { sortBy: 'desc', ...params } });
 };
 
 export const createOrder = (data: any) => {
