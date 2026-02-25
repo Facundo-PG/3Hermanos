@@ -301,10 +301,9 @@ const fetchStats = async () => {
     // Contar estados desde los pedidos reales
     const pedidos = ordersResponse.data.data?.data || []
     const pendientes = pedidos.filter((p: any) => p.estado?.toLowerCase() === 'pendiente').length
-    const pagados = pedidos.filter((p: any) => p.estado?.toLowerCase() === 'pagado').length
-    const enProceso = pedidos.filter((p: any) => p.estado?.toLowerCase() === 'en proceso').length
-    const realizados = pedidos.filter((p: any) => p.estado?.toLowerCase() === 'completado').length
-    const rechazados = pedidos.filter((p: any) => p.estado?.toLowerCase() === 'cancelado').length
+    const enProceso = pedidos.filter((p: any) => ['en_proceso', 'en proceso'].includes(p.estado?.toLowerCase())).length
+    const enCamino = pedidos.filter((p: any) => ['en_camino', 'en camino'].includes(p.estado?.toLowerCase())).length
+    const realizados = pedidos.filter((p: any) => p.estado?.toLowerCase() === 'entregado').length
 
     // Obtener todos los productos y filtrar stock < 10
     const prodData = productsResponse.data
@@ -334,9 +333,9 @@ const fetchStats = async () => {
 
     stats.value = {
       ventasHoy: apiData.ventas_totales_hoy || 0,
-      pendientes: pendientes + pagados + enProceso,
+      pendientes: pendientes + enProceso + enCamino,
       realizados,
-      rechazados,
+      rechazados: 0,
       alertasStock: stockCritico.map((item: any) => ({
         nombre: item.nombre,
         stock: Number(item.stock)

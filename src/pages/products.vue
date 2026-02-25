@@ -899,7 +899,7 @@
           icon="mdi-bank-transfer"
         >
           <div class="text-body-2">
-            Tu comprobante fue adjuntado. Una vez verificada la transferencia, tu pedido pasará a estado <strong>Pagado</strong>.
+            Tu comprobante fue adjuntado. Una vez verificada la transferencia, tu pedido será procesado.
           </div>
         </v-alert>
 

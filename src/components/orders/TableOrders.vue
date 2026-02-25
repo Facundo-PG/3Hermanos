@@ -160,10 +160,8 @@ const headers = [
 const getEstadoColor = (estado: string) => {
   const colors: Record<string, string> = {
     pendiente: 'orange',
-    pagado: 'purple',
     en_proceso: 'blue',
-    completado: 'green',
-    cancelado: 'red',
+    en_camino: 'purple',
     entregado: 'teal'
   }
   return colors[estado] || 'grey'
@@ -172,10 +170,8 @@ const getEstadoColor = (estado: string) => {
 const formatEstado = (estado: string) => {
   const estados: Record<string, string> = {
     pendiente: 'Pendiente',
-    pagado: 'Pagado',
     en_proceso: 'En proceso',
-    completado: 'Completado',
-    cancelado: 'Cancelado',
+    en_camino: 'En camino',
     entregado: 'Entregado'
   }
   return estados[estado] || estado

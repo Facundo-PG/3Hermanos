@@ -97,10 +97,8 @@ const formRef = ref()
 
 const estadosOptions = [
   { title: 'Pendiente', value: 'pendiente' },
-  { title: 'Pagado', value: 'pagado' },
   { title: 'En proceso', value: 'en_proceso' },
-  { title: 'Completado', value: 'completado' },
-  { title: 'Cancelado', value: 'cancelado' },
+  { title: 'En camino', value: 'en_camino' },
   { title: 'Entregado', value: 'entregado' }
 ]
 
