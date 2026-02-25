@@ -824,7 +824,7 @@
                   ></v-btn>
                 </div>
                 <p class="text-body-2 text-medium-emphasis text-center">
-                  Adjuntá el comprobante para agilizar la confirmación.
+                  Adjuntá el comprobante para confirmar tu pedido.
                 </p>
               </v-card-text>
             </v-card>
@@ -860,6 +860,7 @@
             rounded="lg"
             @click="confirmOrder"
             :loading="orderLoading"
+            :disabled="metodoPago === 'Transferencia' && (!comprobanteFile || (Array.isArray(comprobanteFile) && comprobanteFile.length === 0))"
             class="text-none font-weight-bold px-6"
           >
             <v-icon start icon="mdi-send"></v-icon>
@@ -1174,6 +1175,16 @@ const openCheckoutDialog = () => {
 }
 
 const confirmOrder = async () => {
+  // Validar comprobante obligatorio en transferencia
+  if (metodoPago.value === 'Transferencia') {
+    const files = comprobanteFile.value
+    const file = Array.isArray(files) ? files[0] : files
+    if (!file) {
+      showSnackbar('Debés adjuntar el comprobante de transferencia', 'error')
+      return
+    }
+  }
+
   orderLoading.value = true
   try {
     const orderData = {
