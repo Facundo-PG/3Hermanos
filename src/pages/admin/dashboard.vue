@@ -290,9 +290,10 @@ const barOptions = {
 
 const fetchStats = async () => {
   try {
+    const today = new Date().toISOString().split('T')[0]
     const [response, ordersResponse, productsResponse] = await Promise.all([
       obtainDashboard(),
-      obtainOrders(),
+      obtainOrders({ dateFrom: today, dateTo: today }),
       api.get('/products/list')
     ])
     const apiData = response.data.data
