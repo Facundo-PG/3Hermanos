@@ -47,9 +47,13 @@ meta:
     <v-snackbar
       v-model="snackbar"
       :color="snackbarColor"
-      :timeout="3000"
+      :timeout="4000"
+      multi-line
     >
       {{ snackbarText }}
+      <template #actions>
+        <v-btn variant="text" @click="snackbar = false">Cerrar</v-btn>
+      </template>
     </v-snackbar>
   </div>
 </template>
@@ -103,15 +107,16 @@ const fetchSettings = async () => {
 // Toggle abierto/cerrado rápido
 const toggleOpen = async (setting: Setting) => {
   try {
-    await updateSettings(setting.id, { esta_abierto: !setting.esta_abierto })
+    await updateSettings(setting.id, { estaAbierto: !setting.esta_abierto })
     showSnackbar(
       !setting.esta_abierto ? 'Local abierto' : 'Local cerrado',
       !setting.esta_abierto ? 'success' : 'warning'
     )
     await fetchSettings()
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al cambiar estado:', error)
-    showSnackbar('Error al cambiar el estado', 'error')
+    const msg = extractErrorMessage(error, 'Error al cambiar el estado')
+    showSnackbar(msg, 'error')
   }
 }
 
@@ -131,12 +136,12 @@ const saveSetting = async () => {
   saving.value = true
   try {
     const data = {
-      nombre_negocio: editedSetting.value.nombre_negocio,
-      costo_delivery: Number(editedSetting.value.costo_delivery),
-      whatsapp_notificaciones: editedSetting.value.whatsapp_notificaciones,
-      esta_abierto: editedSetting.value.esta_abierto,
-      direccion_local: editedSetting.value.direccion_local,
-      mensaje_alerta: editedSetting.value.mensaje_alerta,
+      nombreNegocio: editedSetting.value.nombre_negocio,
+      costoDelivery: Number(editedSetting.value.costo_delivery),
+      whatsappNotificaciones: editedSetting.value.whatsapp_notificaciones || '',
+      estaAbierto: editedSetting.value.esta_abierto,
+      direccionLocal: editedSetting.value.direccion_local || '',
+      mensajeAlerta: editedSetting.value.mensaje_alerta || '',
     }
     await updateSettings(editedSetting.value.id, data)
     showSnackbar('Configuración actualizada correctamente', 'success')
@@ -144,11 +149,29 @@ const saveSetting = async () => {
     closeEdit()
   } catch (error: any) {
     console.error('Error al actualizar configuración:', error)
-    const msg = error?.response?.data?.message || 'Error al actualizar la configuración'
+    const msg = extractErrorMessage(error, 'Error al actualizar la configuración')
     showSnackbar(msg, 'error')
   } finally {
     saving.value = false
   }
+}
+
+// Extrae el mensaje de error del backend de forma legible
+const extractErrorMessage = (error: any, fallback: string): string => {
+  const resp = error?.response?.data
+  if (!resp) return fallback
+
+  // NestJS class-validator devuelve un array de mensajes
+  if (Array.isArray(resp.message)) {
+    return resp.message.join(', ')
+  }
+  if (typeof resp.message === 'string') {
+    return resp.message
+  }
+  if (typeof resp.error === 'string') {
+    return resp.error
+  }
+  return fallback
 }
 
 const showSnackbar = (text: string, color: string) => {
