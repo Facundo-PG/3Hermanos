@@ -219,7 +219,7 @@ const saveProduct = async (stockToAdd: number) => {
   if (!editedProduct.value) return
   saving.value = true
   try {
-    const newStock = originalStock.value + Number(stockToAdd || 0)
+    const newStock = Number(editedProduct.value.stock) + Number(stockToAdd || 0)
     const updateData = {
       nombre: editedProduct.value.nombre,
       descripcion: editedProduct.value.descripcion,
