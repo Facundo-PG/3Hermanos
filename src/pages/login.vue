@@ -15,7 +15,7 @@
             <div class="login-box" :class="{ 'shake': showError }">
               <!-- Logo circular -->
               <div class="logo-circle">
-                <v-icon icon="mdi-egg" size="50" color="white"></v-icon>
+                <v-img src="/logo.jpeg" alt="Logo" width="100" height="100" cover class="rounded-circle"></v-img>
               </div>
 
               <!-- Título -->
@@ -207,14 +207,15 @@ watch(() => authStore.loading, (newVal) => {
 .logo-circle {
   width: 100px;
   height: 100px;
-  background: linear-gradient(135deg, #ff1744 0%, #d50000 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 32px;
+  overflow: hidden;
   box-shadow: 0 10px 30px rgba(255, 23, 68, 0.4);
   animation: pulse 3s infinite ease-in-out;
+  border: 3px solid rgba(255, 23, 68, 0.6);
 }
 
 @keyframes pulse {

@@ -34,7 +34,7 @@
 
         <!-- Slot para el Stock con colores -->
         <template v-slot:item.stock="{ item }">
-          <v-chip :color="item.stock < 5 ? 'error' : 'success'" size="small">
+          <v-chip :color="item.stock <= 10 ? 'error' : 'success'" size="small">
             {{ item.stock }} kg
           </v-chip>
         </template>

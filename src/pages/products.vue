@@ -4,7 +4,9 @@
       <v-app-bar-nav-icon @click="menuDrawer = !menuDrawer" color="white"></v-app-bar-nav-icon>
 
       <v-app-bar-title class="text-h5 font-weight-bold d-flex align-center" style="cursor: pointer;" @click="scrollTo('inicio')">
-        <v-icon icon="mdi-egg" class="mr-2" size="30"></v-icon>
+        <v-avatar size="36" class="mr-2">
+          <v-img src="/logo.jpeg" alt="Logo"></v-img>
+        </v-avatar>
         <span class="d-none d-sm-inline">Granja 3 Hermanos</span>
         <span class="d-sm-none">3 Hermanos</span>
       </v-app-bar-title>
@@ -49,7 +51,9 @@
     <v-navigation-drawer v-model="menuDrawer" temporary>
       <div class="pa-4 bg-red-darken-2">
         <div class="d-flex align-center">
-          <v-icon icon="mdi-egg" color="white" size="36" class="mr-3"></v-icon>
+          <v-avatar size="40" class="mr-3">
+            <v-img src="/logo.jpeg" alt="Logo"></v-img>
+          </v-avatar>
           <div>
             <div class="text-h6 font-weight-bold text-white">Granja 3 Hermanos</div>
             <div class="text-caption text-white" style="opacity: 0.8;">{{ authStore.user?.nombre || 'Cliente' }}</div>
@@ -258,21 +262,15 @@
               <!-- Imagen del producto -->
               <div class="product-image-wrapper">
                 <v-img
-                  v-if="product.imagen_url"
-                  :src="product.imagen_url"
+                  :src="product.imagen_url || '/productos.jpeg'"
                   height="200"
                   cover
                   class="product-img"
                 >
                   <template v-slot:error>
-                    <div class="product-image-fallback">
-                      <v-icon icon="mdi-food-drumstick" size="64" color="red-darken-2"></v-icon>
-                    </div>
+                    <v-img src="/productos.jpg" height="200" cover class="product-img"></v-img>
                   </template>
                 </v-img>
-                <div v-else class="product-image-fallback">
-                  <v-icon icon="mdi-food-drumstick" size="64" color="red-darken-2"></v-icon>
-                </div>
 
                 <!-- Badges -->
                 <v-chip
