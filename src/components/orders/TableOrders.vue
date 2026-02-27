@@ -60,18 +60,33 @@
 
         <!-- Comprobante Column -->
         <template v-slot:item.comprobante_url="{ item }">
-          <v-btn
-            v-if="item.comprobante_url"
-            :href="getComprobanteUrl(item.comprobante_url)"
-            target="_blank"
-            size="small"
-            variant="tonal"
-            color="blue-darken-2"
-            prepend-icon="mdi-download"
-            class="text-none"
-          >
-            Ver
-          </v-btn>
+          <template v-if="item.comprobante_url">
+            <!-- Imagen: abrir preview en diálogo -->
+            <v-btn
+              v-if="isImage(item.comprobante_url)"
+              size="small"
+              variant="tonal"
+              color="blue-darken-2"
+              prepend-icon="mdi-image"
+              class="text-none"
+              @click="openImagePreview(item.comprobante_url)"
+            >
+              Ver
+            </v-btn>
+            <!-- PDF: abrir en nueva pestaña -->
+            <v-btn
+              v-else
+              :href="getComprobanteUrl(item.comprobante_url)"
+              target="_blank"
+              size="small"
+              variant="tonal"
+              color="blue-darken-2"
+              prepend-icon="mdi-file-pdf-box"
+              class="text-none"
+            >
+              Ver
+            </v-btn>
+          </template>
           <span v-else class="text-medium-emphasis">—</span>
         </template>
 
@@ -105,10 +120,46 @@
       </v-data-table>
     </v-card-text>
   </v-card>
+
+  <!-- Diálogo de preview de imagen -->
+  <v-dialog v-model="imagePreviewDialog" max-width="600">
+    <v-card>
+      <v-card-title class="bg-grey-darken-4 text-white d-flex align-center">
+        <v-icon icon="mdi-image" class="mr-2"></v-icon>
+        Comprobante
+        <v-spacer></v-spacer>
+        <v-btn icon="mdi-close" variant="text" color="white" size="small" @click="imagePreviewDialog = false"></v-btn>
+      </v-card-title>
+      <v-card-text class="pa-4 text-center">
+        <v-img :src="imagePreviewUrl" max-height="500" contain class="rounded">
+          <template v-slot:placeholder>
+            <div class="d-flex align-center justify-center fill-height">
+              <v-progress-circular indeterminate color="grey-lighten-2"></v-progress-circular>
+            </div>
+          </template>
+          <template v-slot:error>
+            <div class="d-flex flex-column align-center justify-center fill-height pa-4">
+              <v-icon icon="mdi-image-broken" size="48" color="grey"></v-icon>
+              <span class="text-grey mt-2">No se pudo cargar la imagen</span>
+            </div>
+          </template>
+        </v-img>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn variant="text" @click="imagePreviewDialog = false">Cerrar</v-btn>
+        <v-btn color="blue-darken-2" variant="tonal" :href="imagePreviewUrl" target="_blank" prepend-icon="mdi-open-in-new">Abrir en nueva pestaña</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import OrderActions from './OrderActions.vue'
+
+const imagePreviewDialog = ref(false)
+const imagePreviewUrl = ref('')
 
 interface Pedido {
   id: number
@@ -196,11 +247,20 @@ const formatMetodoPago = (metodo: string) => {
   return metodos[metodo] || metodo
 }
 
+const isImage = (url: string) => {
+  return /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(url)
+}
+
 const getComprobanteUrl = (url: string) => {
   if (!url) return ''
   if (url.startsWith('http')) return url
   const backendUrl = import.meta.env.VITE_PREFI_API || 'http://localhost:3001'
   return `${backendUrl}/uploads/${url}`
+}
+
+const openImagePreview = (url: string) => {
+  imagePreviewUrl.value = getComprobanteUrl(url)
+  imagePreviewDialog.value = true
 }
 
 const formatDate = (date: string) => {
