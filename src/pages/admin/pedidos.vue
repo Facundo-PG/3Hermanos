@@ -86,44 +86,8 @@ meta:
         </v-col>
       </v-row>
 
-      <!-- Pedidos Via Web -->
-      <v-row class="mb-6">
-        <v-col cols="12">
-          <v-card elevation="2" rounded="lg">
-            <v-card-title class="bg-red-darken-2 text-white d-flex align-center">
-              <v-icon icon="mdi-web" class="mr-2"></v-icon>
-              Pedidos Via Web
-              <v-spacer></v-spacer>
-              <v-chip color="white" variant="flat" size="small" class="text-red-darken-2 font-weight-bold">
-                {{ pedidosWeb.length }} pedidos
-              </v-chip>
-              <v-btn
-                class="ml-3"
-                prepend-icon="mdi-plus"
-                color="white"
-                variant="outlined"
-                size="small"
-                @click="createDialog = true"
-              >
-                Agregar Pedido
-              </v-btn>
-            </v-card-title>
-            <v-card-text class="pa-0">
-              <TableOrders
-                :pedidos="pedidosWeb"
-                :search="''"
-                :loading="loading"
-                @view="viewPedido"
-                @edit="editPedido"
-                @delete="confirmDelete"
-              />
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
       <!-- Pedidos Locales -->
-      <v-row>
+      <v-row class="mb-6">
         <v-col cols="12">
           <v-card elevation="2" rounded="lg">
             <v-card-title class="bg-orange-darken-2 text-white d-flex align-center">
@@ -147,6 +111,42 @@ meta:
             <v-card-text class="pa-0">
               <TableOrders
                 :pedidos="pedidosLocal"
+                :search="''"
+                :loading="loading"
+                @view="viewPedido"
+                @edit="editPedido"
+                @delete="confirmDelete"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Pedidos Via Web -->
+      <v-row>
+        <v-col cols="12">
+          <v-card elevation="2" rounded="lg">
+            <v-card-title class="bg-red-darken-2 text-white d-flex align-center">
+              <v-icon icon="mdi-web" class="mr-2"></v-icon>
+              Pedidos Via Web
+              <v-spacer></v-spacer>
+              <v-chip color="white" variant="flat" size="small" class="text-red-darken-2 font-weight-bold">
+                {{ pedidosWeb.length }} pedidos
+              </v-chip>
+              <v-btn
+                class="ml-3"
+                prepend-icon="mdi-plus"
+                color="white"
+                variant="outlined"
+                size="small"
+                @click="createDialog = true"
+              >
+                Agregar Pedido
+              </v-btn>
+            </v-card-title>
+            <v-card-text class="pa-0">
+              <TableOrders
+                :pedidos="pedidosWeb"
                 :search="''"
                 :loading="loading"
                 @view="viewPedido"
