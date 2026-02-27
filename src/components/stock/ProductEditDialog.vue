@@ -52,13 +52,12 @@
             </v-col>
             <v-col cols="6">
               <v-text-field
-                :model-value="Number(product.stock).toFixed(1)"
+                v-model.number="product.stock"
                 label="Stock Actual"
+                type="number"
                 suffix="Kg"
                 variant="outlined"
                 density="comfortable"
-                readonly
-                disabled
               ></v-text-field>
             </v-col>
           </v-row>
