@@ -309,7 +309,7 @@
                     <span class="text-h5 font-weight-black text-red-darken-2">
                       ${{ Number(product.precio).toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}
                     </span>
-                    <span class="text-body-2 text-medium-emphasis ml-1">{{ isPromocion(product) ? '/ promo' : '/ kg' }}</span>
+                    <span class="text-body-2 text-medium-emphasis ml-1">{{ isPromocion(product) ? '/ Precio por unidad' : '/ kg' }}</span>
                   </div>
                   <v-chip v-if="isPromocion(product)" size="x-small" variant="tonal" color="deep-purple">
                     Promoción
