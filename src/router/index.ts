@@ -12,13 +12,13 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
-  // 1. Si intenta ir a la raíz "/" lo mandamos al login o al dashboard según sesión
-  if (to.path === '/') {
-    return authStore.isAuthenticated ? next('/admin/dashboard') : next('/login')
+  // 1. La raíz "/" es la landing pública, se deja pasar
+  // 2. Si la ruta es protegida (ej: /admin/... o /products) y no está logueado, al login
+  if (to.path.startsWith('/admin') && !authStore.isAuthenticated) {
+    return next('/login')
   }
 
-  // 2. Si la ruta es protegida (ej: /admin/...) y no está logueado, al login
-  if (to.path.startsWith('/admin') && !authStore.isAuthenticated) {
+  if (to.path === '/products' && !authStore.isAuthenticated) {
     return next('/login')
   }
 
