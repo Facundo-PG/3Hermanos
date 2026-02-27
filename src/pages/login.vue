@@ -37,8 +37,14 @@
 
               <!-- Links -->
               <div class="login-links">
-                <RouterLink to="/forgot-password" class="link-text">¿Olvidó su contraseña?</RouterLink>
-                <RouterLink to="/register" class="link-text">¿No tiene una cuenta?</RouterLink>
+                <RouterLink to="/register" class="register-link">
+                  <v-icon icon="mdi-account-plus" size="small" class="mr-1"></v-icon>
+                  Crear una cuenta
+                </RouterLink>
+                <RouterLink to="/forgot-password" class="forgot-link">
+                  <v-icon icon="mdi-lock-reset" size="small" class="mr-1"></v-icon>
+                  Reestablecer o cambiar contraseña
+                </RouterLink>
               </div>
             </div>
           </v-col>
@@ -259,20 +265,51 @@ watch(() => authStore.loading, (newVal) => {
 .login-links {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 24px;
+  gap: 12px;
+  margin-top: 28px;
   text-align: center;
 }
 
-.link-text {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 13px;
+.register-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
   text-decoration: none;
-  transition: color 0.3s ease;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
 }
 
-.link-text:hover {
+.register-link:hover {
+  background: rgba(255, 23, 68, 0.15);
+  border-color: #ff1744;
   color: #ff1744;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(255, 23, 68, 0.2);
+}
+
+.forgot-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.forgot-link:hover {
+  color: #ff1744;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 /* Animación shake */
