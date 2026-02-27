@@ -309,9 +309,12 @@
                     <span class="text-h5 font-weight-black text-red-darken-2">
                       ${{ Number(product.precio).toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}
                     </span>
-                    <span class="text-body-2 text-medium-emphasis ml-1">/ {{ isPromocion(product) ? 'u' : 'kg' }}</span>
+                    <span class="text-body-2 text-medium-emphasis ml-1">{{ isPromocion(product) ? '/ promo' : '/ kg' }}</span>
                   </div>
-                  <v-chip size="x-small" variant="tonal" :color="Number(product.stock) > 10 ? 'green' : 'orange'">
+                  <v-chip v-if="isPromocion(product)" size="x-small" variant="tonal" color="deep-purple">
+                    Promoción
+                  </v-chip>
+                  <v-chip v-else size="x-small" variant="tonal" :color="Number(product.stock) > 10 ? 'green' : 'orange'">
                     {{ Number(product.stock).toFixed(1) }} kg
                   </v-chip>
                 </div>
@@ -320,33 +323,23 @@
               <!-- Agregar al carrito -->
               <v-card-actions class="pa-4 pt-3">
                 <v-row dense align="center">
-                  <v-col :cols="isPromocion(product) ? 3 : 5">
+                  <v-col cols="5">
                     <v-text-field
                       v-model.number="product.quantity"
                       type="number"
                       :label="isPromocion(product) ? 'Cant.' : 'Kg'"
-                      :suffix="product.unitType === 'unidad' ? 'u' : 'kg'"
+                      :suffix="isPromocion(product) ? 'u' : 'kg'"
                       variant="outlined"
                       density="compact"
-                      :min="product.unitType === 'unidad' ? 1 : 0.5"
-                      :step="product.unitType === 'unidad' ? 1 : 0.5"
-                      :max="Number(product.stock)"
+                      :min="isPromocion(product) ? 1 : 0.5"
+                      :step="isPromocion(product) ? 1 : 0.5"
+                      :max="isPromocion(product) ? undefined : Number(product.stock)"
                       :disabled="Number(product.stock) <= 0 || !product.activo"
                       hide-details
                       class="quantity-input"
                     ></v-text-field>
                   </v-col>
-                  <v-col v-if="isPromocion(product)" cols="4">
-                    <v-select
-                      v-model="product.unitType"
-                      :items="[{ title: 'Kg', value: 'kg' }, { title: 'Unidad', value: 'unidad' }]"
-                      variant="outlined"
-                      density="compact"
-                      hide-details
-                      class="quantity-input"
-                    ></v-select>
-                  </v-col>
-                  <v-col :cols="isPromocion(product) ? 5 : 7">
+                  <v-col cols="7">
                     <v-btn
                       color="red-darken-2"
                       variant="flat"
@@ -1133,7 +1126,7 @@ const fetchProducts = async () => {
       precio: Number(p.precio),
       stock: Number(p.stock),
       quantity: 0,
-      unitType: /promoci[oó]n/i.test(p.descripcion || '') ? 'unidad' : 'kg' as 'kg' | 'unidad',
+      unitType: (/promoci[oó]n/i.test(p.descripcion || '') ? 'unidad' : 'kg') as 'kg' | 'unidad',
     }))
   } catch (error) {
     console.error('Error al cargar productos:', error)
@@ -1146,7 +1139,7 @@ const fetchProducts = async () => {
 const addToCart = (product: Product) => {
   if (!product.quantity || product.quantity <= 0) return
 
-  const existing = cart.value.find(item => item.id === product.id && item.unitType === product.unitType)
+  const existing = cart.value.find(item => item.id === product.id)
   if (existing) {
     existing.quantity += product.quantity
   } else {
@@ -1156,7 +1149,7 @@ const addToCart = (product: Product) => {
       precio: product.precio,
       imagen_url: product.imagen_url,
       quantity: product.quantity,
-      unitType: product.unitType,
+      unitType: isPromocion(product) ? 'unidad' : 'kg',
     })
   }
 
