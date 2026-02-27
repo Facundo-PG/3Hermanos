@@ -199,7 +199,8 @@ const formatMetodoPago = (metodo: string) => {
 const getComprobanteUrl = (url: string) => {
   if (!url) return ''
   if (url.startsWith('http')) return url
-  return `${window.location.origin}/uploads/${url}`
+  const backendUrl = import.meta.env.VITE_PREFI_API || 'http://localhost:3001'
+  return `${backendUrl}/uploads/${url}`
 }
 
 const formatDate = (date: string) => {

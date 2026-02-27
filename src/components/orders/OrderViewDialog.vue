@@ -56,10 +56,17 @@
                 </div>
               </template>
             </v-img>
-            <div v-else class="d-flex align-center pa-3">
+            <div v-else-if="isPdf(pedido.comprobante_url)" class="d-flex align-center pa-3">
               <v-icon icon="mdi-file-pdf-box" color="red" size="40" class="mr-3"></v-icon>
               <div>
                 <div class="font-weight-bold">Comprobante PDF</div>
+                <a :href="comprobanteFullUrl" target="_blank" class="text-blue-darken-2">Ver archivo</a>
+              </div>
+            </div>
+            <div v-else class="d-flex align-center pa-3">
+              <v-icon icon="mdi-file-document-outline" color="blue" size="40" class="mr-3"></v-icon>
+              <div>
+                <div class="font-weight-bold">Comprobante</div>
                 <a :href="comprobanteFullUrl" target="_blank" class="text-blue-darken-2">Ver archivo</a>
               </div>
             </div>
@@ -142,11 +149,16 @@ const comprobanteFullUrl = computed(() => {
   const url = props.pedido?.comprobante_url
   if (!url) return ''
   if (url.startsWith('http')) return url
-  return `${window.location.origin}/uploads/${url}`
+  const backendUrl = import.meta.env.VITE_PREFI_API || 'http://localhost:3001'
+  return `${backendUrl}/uploads/${url}`
 })
 
 const isImage = (url: string) => {
-  return /\.(jpg|jpeg|png|webp)$/i.test(url)
+  return /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(url)
+}
+
+const isPdf = (url: string) => {
+  return /\.pdf$/i.test(url)
 }
 
 const openComprobante = () => {
