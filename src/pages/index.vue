@@ -458,11 +458,8 @@
                 Productos frescos directo de la granja a tu mesa. Calidad, frescura y compromiso desde 2021.
               </p>
               <div class="d-flex ga-2">
-                <v-btn icon variant="tonal" color="white" size="small" href="https://www.instagram.com/" target="_blank">
+                <v-btn icon variant="tonal" color="white" size="small" href="https://www.instagram.com/granja3hermanos?igsh=dTRsemZkY2c2cTg0" target="_blank">
                   <v-icon icon="mdi-instagram" size="18"></v-icon>
-                </v-btn>
-                <v-btn icon variant="tonal" color="white" size="small" href="https://www.facebook.com/" target="_blank">
-                  <v-icon icon="mdi-facebook" size="18"></v-icon>
                 </v-btn>
                 <v-btn icon variant="tonal" color="white" size="small" href="https://wa.me/5491124743204" target="_blank">
                   <v-icon icon="mdi-whatsapp" size="18"></v-icon>
