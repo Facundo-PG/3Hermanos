@@ -1000,12 +1000,12 @@ const valores = [
 ]
 
 const horarios = [
-  { dia: 'Lunes', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
-  { dia: 'Martes', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
-  { dia: 'Miércoles', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
-  { dia: 'Jueves', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
-  { dia: 'Viernes', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
-  { dia: 'Sábado', horario: '09:00 - 13:00', abierto: true },
+  { dia: 'Lunes', horario: '09:00 - 13:00 / 17:00 - 21:00', abierto: true },
+  { dia: 'Martes', horario: '09:00 - 13:00 / 17:00 - 21:00', abierto: true },
+  { dia: 'Miércoles', horario: '09:00 - 13:00 / 17:00 - 21:00', abierto: true },
+  { dia: 'Jueves', horario: '09:00 - 13:00 / 17:00 - 21:00', abierto: true },
+  { dia: 'Viernes', horario: '09:00 - 13:00 / 17:00 - 21:00', abierto: true },
+  { dia: 'Sábado', horario: '09:00 - 14:00', abierto: true },
   { dia: 'Domingo', horario: 'Cerrado', abierto: false },
   { dia: 'Feriados', horario: 'Consultar', abierto: false },
 ]

@@ -476,8 +476,8 @@
             </v-col>
             <v-col cols="6" md="3">
               <div class="text-subtitle-2 font-weight-bold text-white mb-3">HORARIOS</div>
-              <div class="text-body-2 text-grey-lighten-1 mb-1">Lun a Vie: 09:00 - 21:00</div>
-              <div class="text-body-2 text-grey-lighten-1 mb-1">Sábado: 09:00 - 13:00</div>
+              <div class="text-body-2 text-grey-lighten-1 mb-1">Lun a Vie: 09:00 - 13:00 / 17:00 - 21:00</div>
+              <div class="text-body-2 text-grey-lighten-1 mb-1">Sábado: 09:00 - 14:00</div>
               <div class="text-body-2 text-grey-lighten-1">Domingo: Cerrado</div>
             </v-col>
             <v-col cols="12" md="3">
@@ -582,12 +582,12 @@ const valores = [
 ]
 
 const horarios = [
-  { dia: 'Lunes', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
-  { dia: 'Martes', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
-  { dia: 'Miércoles', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
-  { dia: 'Jueves', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
-  { dia: 'Viernes', horario: '09:00 - 13:00 / 15:00 - 21:00', abierto: true },
-  { dia: 'Sábado', horario: '09:00 - 13:00', abierto: true },
+  { dia: 'Lunes', horario: '09:00 - 13:00 / 17:00 - 21:00', abierto: true },
+  { dia: 'Martes', horario: '09:00 - 13:00 / 17:00 - 21:00', abierto: true },
+  { dia: 'Miércoles', horario: '09:00 - 13:00 / 17:00 - 21:00', abierto: true },
+  { dia: 'Jueves', horario: '09:00 - 13:00 / 17:00 - 21:00', abierto: true },
+  { dia: 'Viernes', horario: '09:00 - 13:00 / 17:00 - 21:00', abierto: true },
+  { dia: 'Sábado', horario: '09:00 - 14:00', abierto: true },
   { dia: 'Domingo', horario: 'Cerrado', abierto: false },
   { dia: 'Feriados', horario: 'Consultar', abierto: false },
 ]
