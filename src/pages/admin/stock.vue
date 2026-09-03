@@ -70,7 +70,6 @@ meta:
     <ProductCreateDialog
       v-model="createDialog"
       :saving="saving"
-      :categories="categoryList"
       @close="createDialog = false"
       @save="saveNewProduct"
     />
@@ -80,7 +79,6 @@ meta:
       v-model="editDialog"
       :product="editedProduct"
       :saving="saving"
-      :categories="categoryList"
       @close="closeEdit"
       @save="saveProduct"
     />
@@ -108,7 +106,6 @@ meta:
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { obtainProducts, createProduct, updateProduct, deleteProduct } from '@/services/admin/obtainProducts.service'
-import { obtainCategories } from '@/services/admin/obtainCategories.service'
 import StockTable from '@/components/stock/StockTable.vue'
 import ProductCreateDialog from '@/components/stock/ProductCreateDialog.vue'
 import ProductEditDialog from '@/components/stock/ProductEditDialog.vue'
@@ -120,14 +117,8 @@ interface Product {
   descripcion: string
   precio: number
   stock: number
-  category_id: number | null
   categories: { id: number; nombre: string } | null
   created_at: string
-}
-
-interface Category {
-  id: number
-  nombre: string
 }
 
 // State
@@ -142,18 +133,6 @@ const originalStock = ref(0)
 const productToDelete = ref<Product | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
-const categoryList = ref<Category[]>([])
-
-const normalizeListResponse = (payload: any) => {
-  const data = payload?.data
-  return Array.isArray(data?.data)
-    ? data.data
-    : Array.isArray(data)
-      ? data
-      : Array.isArray(payload)
-        ? payload
-        : []
-}
 
 // Snackbar
 const snackbar = ref(false)
@@ -165,7 +144,14 @@ const fetchProducts = async () => {
   loading.value = true
   try {
     const response = await obtainProducts()
-    const arr = normalizeListResponse(response)
+    const d = response.data
+    const arr = Array.isArray(d?.data?.data)
+      ? d.data.data
+      : Array.isArray(d?.data)
+        ? d.data
+        : Array.isArray(d)
+          ? d
+          : []
     // Normalize field names (camelCase → snake_case) for dates
     products.value = arr.map((p: any) => ({
       ...p,
@@ -177,41 +163,6 @@ const fetchProducts = async () => {
     showSnackbar('Error al cargar los productos', 'error')
   } finally {
     loading.value = false
-  }
-}
-
-const fetchCategories = async () => {
-  try {
-    const response = await obtainCategories()
-    const categories = normalizeListResponse(response)
-    categoryList.value = categories
-      .map((category: any) => ({
-        id: Number(category.id),
-        nombre: String(category.nombre ?? category.name ?? ''),
-      }))
-      .filter((category: Category) => category.id && category.nombre)
-      .sort((a: Category, b: Category) => a.nombre.localeCompare(b.nombre))
-
-    if (!categoryList.value.length && products.value.length) {
-      const catsMap = new Map<number, Category>()
-      products.value.forEach((product: Product) => {
-        if (product.categories?.id && product.categories?.nombre) {
-          catsMap.set(product.categories.id, { id: product.categories.id, nombre: product.categories.nombre })
-        }
-      })
-      categoryList.value = Array.from(catsMap.values()).sort((a, b) => a.nombre.localeCompare(b.nombre))
-    }
-  } catch (error) {
-    console.error('Error al cargar categorías:', error)
-    if (products.value.length) {
-      const catsMap = new Map<number, Category>()
-      products.value.forEach((product: Product) => {
-        if (product.categories?.id && product.categories?.nombre) {
-          catsMap.set(product.categories.id, { id: product.categories.id, nombre: product.categories.nombre })
-        }
-      })
-      categoryList.value = Array.from(catsMap.values()).sort((a, b) => a.nombre.localeCompare(b.nombre))
-    }
   }
 }
 
@@ -236,7 +187,6 @@ const saveNewProduct = async (data: any) => {
 const editProduct = (product: Product) => {
   editedProduct.value = {
     ...product,
-    category_id: product.categories?.id ?? product.category_id ?? null,
   }
   originalStock.value = Number(product.stock)
   editDialog.value = true
@@ -257,7 +207,6 @@ const saveProduct = async (stockToAdd: number) => {
       descripcion: editedProduct.value.descripcion,
       precio: Number(editedProduct.value.precio),
       stock: newStock,
-      category_id: editedProduct.value.category_id || undefined,
     }
     await updateProduct(editedProduct.value.id, updateData)
     showSnackbar('Producto actualizado correctamente', 'success')
@@ -304,7 +253,6 @@ const showSnackbar = (text: string, color: string) => {
 
 onMounted(() => {
   fetchProducts()
-  fetchCategories()
 })
 </script>
 

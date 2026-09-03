@@ -25,19 +25,6 @@
             class="mb-4"
           ></v-textarea>
 
-          <v-select
-            v-model="product.category_id"
-            :items="categories"
-            item-title="nombre"
-            item-value="id"
-            label="Categoría"
-            variant="outlined"
-            density="comfortable"
-            clearable
-            class="mb-4"
-            prepend-inner-icon="mdi-tag"
-          ></v-select>
-
           <v-row>
             <v-col cols="6">
               <v-text-field
@@ -105,7 +92,6 @@ defineProps<{
   modelValue: boolean
   product: any
   saving: boolean
-  categories: { id: number; nombre: string }[]
 }>() 
 
 const emit = defineEmits<{
