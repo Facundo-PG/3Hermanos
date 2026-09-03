@@ -108,6 +108,7 @@ meta:
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { obtainProducts, createProduct, updateProduct, deleteProduct } from '@/services/admin/obtainProducts.service'
+import { obtainCategories } from '@/services/admin/obtainCategories.service'
 import StockTable from '@/components/stock/StockTable.vue'
 import ProductCreateDialog from '@/components/stock/ProductCreateDialog.vue'
 import ProductEditDialog from '@/components/stock/ProductEditDialog.vue'
@@ -143,6 +144,17 @@ const saving = ref(false)
 const deleting = ref(false)
 const categoryList = ref<Category[]>([])
 
+const normalizeListResponse = (payload: any) => {
+  const data = payload?.data
+  return Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data)
+      ? data
+      : Array.isArray(payload)
+        ? payload
+        : []
+}
+
 // Snackbar
 const snackbar = ref(false)
 const snackbarText = ref('')
@@ -153,33 +165,53 @@ const fetchProducts = async () => {
   loading.value = true
   try {
     const response = await obtainProducts()
-    const d = response.data
-    const arr = Array.isArray(d?.data?.data)
-      ? d.data.data
-      : Array.isArray(d?.data)
-        ? d.data
-        : Array.isArray(d)
-          ? d
-          : []
+    const arr = normalizeListResponse(response)
     // Normalize field names (camelCase → snake_case) for dates
     products.value = arr.map((p: any) => ({
       ...p,
       created_at: p.created_at || p.createdAt || null,
       updated_at: p.updated_at || p.updatedAt || null,
     }))
-    // Extract unique categories from products
-    const catsMap = new Map<number, Category>()
-    arr.forEach((p: any) => {
-      if (p.categories?.id && p.categories?.nombre) {
-        catsMap.set(p.categories.id, { id: p.categories.id, nombre: p.categories.nombre })
-      }
-    })
-    categoryList.value = Array.from(catsMap.values()).sort((a, b) => a.nombre.localeCompare(b.nombre))
   } catch (error) {
     console.error('Error al cargar productos:', error)
     showSnackbar('Error al cargar los productos', 'error')
   } finally {
     loading.value = false
+  }
+}
+
+const fetchCategories = async () => {
+  try {
+    const response = await obtainCategories()
+    const categories = normalizeListResponse(response)
+    categoryList.value = categories
+      .map((category: any) => ({
+        id: Number(category.id),
+        nombre: String(category.nombre ?? category.name ?? ''),
+      }))
+      .filter((category: Category) => category.id && category.nombre)
+      .sort((a: Category, b: Category) => a.nombre.localeCompare(b.nombre))
+
+    if (!categoryList.value.length && products.value.length) {
+      const catsMap = new Map<number, Category>()
+      products.value.forEach((product: Product) => {
+        if (product.categories?.id && product.categories?.nombre) {
+          catsMap.set(product.categories.id, { id: product.categories.id, nombre: product.categories.nombre })
+        }
+      })
+      categoryList.value = Array.from(catsMap.values()).sort((a, b) => a.nombre.localeCompare(b.nombre))
+    }
+  } catch (error) {
+    console.error('Error al cargar categorías:', error)
+    if (products.value.length) {
+      const catsMap = new Map<number, Category>()
+      products.value.forEach((product: Product) => {
+        if (product.categories?.id && product.categories?.nombre) {
+          catsMap.set(product.categories.id, { id: product.categories.id, nombre: product.categories.nombre })
+        }
+      })
+      categoryList.value = Array.from(catsMap.values()).sort((a, b) => a.nombre.localeCompare(b.nombre))
+    }
   }
 }
 
@@ -272,6 +304,7 @@ const showSnackbar = (text: string, color: string) => {
 
 onMounted(() => {
   fetchProducts()
+  fetchCategories()
 })
 </script>
 
