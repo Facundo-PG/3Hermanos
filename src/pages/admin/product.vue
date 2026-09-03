@@ -62,14 +62,28 @@ import { ref, onMounted } from 'vue'
 import api from '@/api/axios'
 import ProductForm from '@/components/products/ProductForm.vue'
 
-const products = ref([])
-const categories = ref([])
+interface Product {
+  id: number
+  nombre: string
+  precio: number
+  stock: number
+  category_id?: number | null
+  activo?: boolean
+}
+
+interface Category {
+  id: number
+  nombre: string
+}
+
+const products = ref<Product[]>([])
+const categories = ref<Category[]>([])
 const loading = ref(false)
 const search = ref('')
 
 // Control del modal
 const showForm = ref(false)
-const selectedItem = ref(null)
+const selectedItem = ref<Product | null>(null)
 
 const headers = [
   { title: 'Nombre', key: 'nombre' },
@@ -100,6 +114,19 @@ const openCreate = () => {
 const openEdit = (item: any) => {
   selectedItem.value = { ...item }
   showForm.value = true
+}
+
+const confirmDelete = async (item: Product) => {
+  const shouldDelete = window.confirm(`¿Eliminar el producto ${item.nombre}?`)
+  if (!shouldDelete) return
+
+  loading.value = true
+  try {
+    await api.delete(`/products/delete?id=${item.id}`)
+    await fetchData()
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(fetchData)
